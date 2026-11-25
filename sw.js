@@ -1,5 +1,5 @@
 /* THUG 클랜 — 앱처럼 깔기 도우미. 화면 파일(쪽·그림·글꼴)만 기기에 저장해 두고, 기록(창고 요청)은 건드리지 않는다. */
-const VER = 'thug-3957e079353d';
+const VER = 'thug-01e0f769e73b';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VER).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

@@ -619,6 +619,8 @@ select.field option { background: #0a1530; color: var(--tx); }
 @media (min-width: 900px) { .look { grid-template-columns: minmax(330px, 380px) minmax(0, 1fr); align-items: start; } }
 .look-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 16px 0 4px; }
 .look-stage > .comm { align-self: center; } /* 말풍선 꼬리가 초상 가운데를 가리키게 */
+/* 꾸미기: 본인 확인된 기기는 내 아이디가 고정(고르기 칸 대신 이름) */
+.look-me { display: flex; align-items: center; gap: 8px; min-height: 34px; min-width: 0; color: #fff; }
 .bubble { position: relative; max-width: 100%; padding: 6px 12px; color: #0a1428; background: #e6f0ff; box-shadow: 0 0 0 2px #0a1428, 0 0 0 3px var(--edge-hi); overflow-wrap: anywhere; }
 .bubble::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 10px; height: 6px; margin-left: -5px; background: #e6f0ff; clip-path: polygon(0 0, 10px 0, 10px 2px, 8px 2px, 8px 4px, 6px 4px, 6px 6px, 4px 6px, 4px 4px, 2px 4px, 2px 2px, 0 2px); }
 .opt { border: 0; padding: 0; margin: 0 0 18px; min-width: 0; }
@@ -1686,6 +1688,145 @@ span.md-wrap > canvas.md {
   .tt-sec > .pnl-b { padding: 10px 14px 12px; }
 }
 
+/* ---------- 5단계: 본인 확인(#me, 꾸미기 맨 위 패널), 운영진 화면의 구역 칩·본인 확인 구역 (2026-11-25) ---------- */
+.me-pick { display: grid; gap: 8px; max-width: 440px; }
+.me-who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; font: var(--f-m); color: var(--tx); }
+.me-who + .me-who, .me-who + .lbl { margin-top: 14px; }
+.me-who .nm { min-width: 0; overflow-wrap: anywhere; }
+.me-who canvas { flex: none; }
+.me-code { margin-top: 10px; font: var(--f-x); color: #fff; letter-spacing: 6px; }
+.me-code + p { margin-top: 4px; }
+.note.me-first { margin-top: 0; }
+.note.me-first + * { margin-top: 14px; }
+.me-link { margin-top: 14px; max-width: 560px; }
+.me-link .btns { margin-top: 10px; }
+.me-link .note { margin-top: 8px; }
+.field.me-url { font: var(--f-s); }
+.me-hide { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; }
+.me-gate { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font: var(--f-s); color: var(--sub); }
+.me-go { margin-top: 0; }
+
+/* 운영진 단추의 대기 신청 수, 운영진 화면 구역 칩 */
+.adm-btn .adm-n { color: var(--sys); white-space: pre; }
+.adm-secs .chip-n { color: var(--sys); }
+/* 본인 확인 구역 */
+.adm-keys { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.adm-k { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px 14px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.adm-k-code { font: var(--f-h); color: #fff; letter-spacing: 4px; white-space: nowrap; }
+.adm-k-b { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.adm-gone { border-top: 1px solid var(--edge-dim); }
+.adm-gone > summary { padding: 12px 14px; font: var(--f-s); color: var(--sub); cursor: pointer; }
+.adm-gone[open] > summary { border-bottom: 1px solid var(--line); }
+.adm-gone .adm-keys { border-top: 0; }
+.adm-k-st:has(> .note:empty) { display: none; }
+/* 누를 수 없는 단추(예: 올린 꾸미기가 없을 때 '꾸미기·대사 지우기') */
+.adm-k-b .btn:disabled { color: var(--dim); --b1: #1a2f55; --b2: #12233f; --b3: #0c1a30; --bl: #2a4472; cursor: default; }
+@media (max-width: 699px) {
+  .adm-k { grid-template-columns: minmax(0, 1fr) auto; }
+  .adm-k-b { grid-column: 1 / -1; }
+  .adm-gone > summary { display: flex; align-items: center; min-height: 40px; padding: 0 14px; }
+  .adm-btn .adm-n-w { display: none; }
+}
+
+/* THUG 클랜 — 방명록·채팅(posts.js, 전역 PO)의 모양. 5단계(2026-11-25). 묶을 때 맨 뒤에 붙음 */
+/* 사람이 쓴 글: 자동 대사 줄(.c-line-say)과 같은 꼴(시각 · 초상·이름 : 글)에 옅은 바탕을 깔아 구분. 이어진 글은 바탕이 이어짐 */
+.c.c-post { margin: 0 -14px; padding: 5px 14px; background: rgba(47, 99, 184, 0.16); }
+.c.c-post.has-del { grid-template-columns: 36px minmax(0, 1fr) auto; }
+.c-msg { color: #fff; }
+.c-post.mine .c-who .plink, .c-post.mine .c-who .outsider { color: var(--sys); }
+/* 지우기: 작은 글자 단추, 첫 줄 높이에 맞춤(휴대폰은 누르는 칸 40px, 줄 높이는 그대로) */
+.c-del {
+  align-self: start; display: inline-flex; align-items: center; min-height: 26px; padding: 0 2px;
+  font: var(--f-s); color: var(--dim); background: none; border: 0; cursor: pointer; white-space: nowrap;
+}
+.c-del:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.c-del:disabled { color: var(--edge-dim); cursor: default; text-decoration: none; }
+
+/* 입력 줄: PC·태블릿은 소식 칸 맨 아래(칸 높이 안), 휴대폰은 목록 위 */
+.po-in { flex: none; display: flex; align-items: stretch; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--edge-dim); background: #071026; }
+.po-in .field { flex: 1 1 auto; min-width: 0; width: auto; }
+.po-in .btn { flex: none; }
+.po-in.po-gate { display: block; }
+@media (min-width: 700px) and (max-width: 999px) {
+  /* 태블릿: 소식 칸 높이에서 입력 줄(55px)만큼 뺌 */
+  .p-news.has-in .chat-wrap { height: max(320px, calc(100vh - 375px)); height: max(320px, calc(100dvh - 375px)); }
+}
+@media (max-width: 699px) {
+  .po-in { order: -1; border-top: 0; border-bottom: 1px solid var(--edge-dim); }
+  .c-del { min-height: 40px; margin: -7px 0; padding: 0 6px; }
+  /* 새 글을 위에 끼울 때 읽던 줄을 views.js가 제자리에 두므로 브라우저의 자동 맞춤은 끔 */
+  .lobby { overflow-anchor: none; }
+}
+
+/* 운영진 화면의 '칭호' 구역(titleadmin.js, TA.panel). 색·글꼴은 style.css 토큰만(12px --f-s·--f-sb, 15px --f-m).
+   칭호 이름표 모양은 titles.css의 .tt-tag를 그대로 씀. 휴대폰 누를 자리는 style.css가 40px로 */
+.ta { display: contents; }
+.ta-tools { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px 14px; }
+.ta-tools input.field { width: 100%; max-width: 320px; }
+.ta-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.ta-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px 14px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.ta-row.on { background: rgba(242, 210, 75, 0.07); box-shadow: inset 3px 0 0 var(--sys); }
+.ta-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ta-top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; }
+.ta-d { font: var(--f-m); color: var(--tx); overflow-wrap: anywhere; }
+.ta-s { font: var(--f-s); color: var(--sub); overflow-wrap: anywhere; }
+.ta-flag { font: var(--f-sb); color: var(--loss); }
+.ta-off .tt-tag { background: none; color: var(--sub); box-shadow: inset 0 0 0 1px var(--edge-dim); }
+.ta-off .ta-d { color: var(--sub); }
+.ta-b { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.ta-hold { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 0; padding: 0; list-style: none; }
+.ta-h { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; }
+.ta-hn { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.ta-form { grid-column: 1 / -1; padding: 12px 0 0; border-top: 1px solid var(--line); }
+.ta-tools > .ta-form { padding-top: 0; border-top: 0; }
+.ta-fs { display: flex; flex-wrap: wrap; gap: 0 14px; }
+.ta-fld { display: flex; flex-direction: column; min-width: 0; }
+.ta-fld .lbl { margin-top: 0; }
+.ta-fld input.field { width: 260px; max-width: 100%; }
+.ta-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.ta-pick input.field { width: 140px; }
+.ta-pick select.field { width: 200px; max-width: 100%; }
+.ta-fb { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ta-st { margin: 0; padding: 12px 14px 14px; }
+.ta-st:empty { display: none; }
+
+@media (max-width: 699px) {
+  .ta-row { grid-template-columns: minmax(0, 1fr); }
+  .ta-b { justify-content: flex-start; }
+  .ta-fs { flex-direction: column; gap: 10px; }
+  .ta-fld input.field, .ta-pick input.field, .ta-pick select.field { width: 100%; }
+  .ta-pick { flex-direction: column; }
+  .ta-hn { min-height: 40px; }
+}
+
+/* 클랜전 보강(wars.js, 창고 0003): 지운 직후 되돌리기 줄, 저장 충돌 알림, 기록실 아래 지운 클랜전 목록.
+   색·글꼴은 style.css 토큰만(12px --f-s·--f-sb, 15px --f-m). 휴대폰 누를 자리는 style.css가 40px로 */
+.cw-undo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; font: var(--f-m); color: var(--tx); background: var(--deep); border: 1px solid var(--edge-dim); }
+.cw-undo > span { min-width: 0; overflow-wrap: anywhere; }
+.cw-undo .btn:first-of-type { margin-left: auto; }
+.cw-conf { margin-top: 16px; padding: 12px 14px; background: var(--deep); border: 1px solid var(--sys); }
+.cw-conf .note { margin-top: 4px; }
+.cw-conf .btns { margin-top: 12px; }
+.cw-conf-h { font: var(--f-m); color: var(--sys); }
+.cw-gone { background: var(--deep); border: 1px solid var(--edge-dim); }
+.cw-gone > summary { display: flex; align-items: center; min-height: 40px; padding: 0 14px; font: var(--f-s); color: var(--sub); cursor: pointer; }
+.cw-gone > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.cw-gone[open] > summary { border-bottom: 1px solid var(--line); }
+.cw-gl { list-style: none; margin: 0; padding: 0; }
+.cw-g { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto auto; grid-template-areas: "d o s b" "d m m b"; align-items: baseline; gap: 4px 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.cw-g:last-child { border-bottom: 0; }
+.cw-g .cw-d { grid-area: d; }
+.cw-g .cw-o { grid-area: o; color: var(--sub); }
+.cw-g .cw-s { grid-area: s; white-space: nowrap; }
+.cw-g .cw-m { grid-area: m; }
+.cw-g .btn { grid-area: b; align-self: center; }
+
+@media (max-width: 699px) {
+  .cw-undo .btn:first-of-type { margin-left: 0; }
+  .cw-g { grid-template-columns: 64px minmax(0, 1fr) auto; grid-template-areas: "d o s" "d m m" "d b b"; }
+  .cw-g .btn { justify-self: start; align-self: start; }
+}
+
 </style>
 <div class="sky" aria-hidden="true"></div>
 <div id="gate" class="gate" hidden>
@@ -2666,9 +2807,18 @@ const DB = (() => {
   def({ id: 'war-ace', k: '클랜전 에이스', group: '리그·클랜전', late: true, w: 88, d: '클랜전 세트를 가장 많이 이김', rule: `클랜전 세트 승 수 1위(세트 ${TC.war}번 이상)`, pick: () => tops(ranked, (p) => { const e = warOf(p); return e && e.n >= TC.war ? e.w : null; }, { min: 1 }), why: (v, p) => `클랜전 세트 ${v}승 ${warOf(p).l}패` });
   def({ id: 'war-perfect', k: '클랜전 무패', group: '리그·클랜전', late: true, w: 84, d: '클랜전 세트를 한 번도 지지 않음', rule: `클랜전 세트 ${TC.war}번 이상, 진 세트 없음`, pick: () => every(ranked, (p) => { const e = warOf(p); return e && e.n >= TC.war && e.l === 0 ? e.n : null; }, () => true), why: (v) => `클랜전 세트 ${v}전 전승` });
 
-  // 운영진 고침 목록(5단계에서 창고에 둠). 한 줄 = { id, k?, d?, off?, give?: [사람 id | {id, why}], take?: [사람 id] }
+  // 운영진 고침 목록(창고 club_titles). 한 줄 = { id, k?, d?, off?, give?: [{ n: 이름소문자, why? }], take?: [이름소문자] }
+  // 사람은 이름(대표 이름·다른 이름 아무거나)으로 적음. 옛 꼴(사람 id 글자, { id, why })도 받음
   // id가 위 표에 있으면 그 칭호의 이름·뜻을 바꾸거나 끄고, 없으면 '특수' 칭호(k 필수)를 새로 만듦
   const cut = (s, n) => (typeof s === 'string' && s.trim() ? s.trim().slice(0, n) : null);
+  const nameToP = new Map();
+  for (const p of persons) for (const a of [p.name, ...(p.aliases || [])]) if (a != null && !nameToP.has(String(a).toLowerCase())) nameToP.set(String(a).toLowerCase(), p);
+  const personOf = (x) => {
+    if (typeof x === 'string') return byId.get(x) || nameToP.get(x.toLowerCase()) || null;
+    if (!x || typeof x !== 'object') return null;
+    if (typeof x.n === 'string' && x.n) return nameToP.get(x.n.toLowerCase()) || byId.get(x.n) || null;
+    return typeof x.id === 'string' ? byId.get(x.id) || null : null;
+  };
   const overRows = (ov) => (Array.isArray(ov) ? ov : ov && typeof ov === 'object' ? Object.entries(ov).map(([id, v]) => ({ id, ...v })) : []).filter((r) => r && typeof r.id === 'string' && r.id);
   const TITLES = []; // 모든 칭호(아무도 없는 것, 꺼진 것 포함): { id, k, d, rule, group, w, late, special, off, holders:[{ p, v, why, hand }] }
   let lastOver = null;
@@ -2684,11 +2834,11 @@ const DB = (() => {
     for (const x of TDEFS) {
       let holders = [];
       try { holders = holdersOf(x); } catch (e) { console.error('칭호 계산', x.id, e); }
-      out.push({ id: x.id, k: x.k, d: x.d, rule: x.rule, group: x.group, w: x.w, late: !!x.late, special: false, off: false, tier: x.tier, place: x.place, holders });
+      out.push({ id: x.id, k: x.k, d: x.d, k0: x.k, d0: x.d, rule: x.rule, group: x.group, w: x.w, late: !!x.late, special: false, off: false, tier: x.tier, place: x.place, holders });
     }
     for (const r of rows.values()) {
       if (out.some((t) => t.id === r.id) || !cut(r.k, 20)) continue;
-      out.push({ id: r.id, k: cut(r.k, 20), d: cut(r.d, 60) || '클랜 마스터가 준 칭호', rule: '클랜 마스터가 직접 줌', group: '특수', w: 90, late: false, special: true, off: false, holders: [] });
+      out.push({ id: r.id, k: cut(r.k, 20), d: cut(r.d, 60) || '운영진이 준 칭호', rule: '운영진이 직접 줌', group: '특수', w: 90, late: false, special: true, off: false, holders: [] });
     }
     for (const t of out) {
       const r = rows.get(t.id);
@@ -2696,12 +2846,12 @@ const DB = (() => {
       if (cut(r.k, 20)) t.k = cut(r.k, 20);
       if (cut(r.d, 60)) t.d = cut(r.d, 60);
       t.off = r.off === true;
-      const take = new Set(Array.isArray(r.take) ? r.take : []);
+      const take = new Set((Array.isArray(r.take) ? r.take : []).map(personOf).filter(Boolean).map((p) => p.id));
       t.holders = t.holders.filter((x) => !take.has(x.p.id));
       for (const g of Array.isArray(r.give) ? r.give : []) {
-        const pid = typeof g === 'string' ? g : g && g.id, p = pid ? byId.get(pid) : null;
-        if (!p || !p.ranked || t.holders.some((x) => x.p.id === p.id)) continue;
-        t.holders.push({ p, v: null, why: cut(g && g.why, 40) || '클랜 마스터가 줌', hand: true });
+        const p = personOf(g);
+        if (!p || !p.ranked || take.has(p.id) || t.holders.some((x) => x.p.id === p.id)) continue;
+        t.holders.push({ p, v: null, why: cut(g && g.why, 40) || '운영진이 줌', hand: true });
       }
     }
     TITLES.length = 0;
@@ -2814,7 +2964,8 @@ const CL = (() => {
     let our = num(d.our), their = num(d.their);
     if (sets.length) { our = sets.filter((s) => s.win).length; their = sets.length - our; }
     const result = d.result === 'w' || d.result === 'l' || d.result === 'd' ? d.result : our > their ? 'w' : our < their ? 'l' : 'd';
-    return { id: String(row.id), on, t: noon(on), opp: String(d.opp || '이름 없는 클랜').trim() || '이름 없는 클랜', result, our, their, sets, note: typeof d.note === 'string' ? d.note : '', raw: d };
+    // ver: 창고 0003부터 있는 판 번호(옛 창고는 없어 0). 고칠 때 thug_war_save의 p_ver로 보냄
+    return { id: String(row.id), ver: Number.isInteger(+row.ver) && +row.ver > 0 ? +row.ver : 0, on, t: noon(on), opp: String(d.opp || '이름 없는 클랜').trim() || '이름 없는 클랜', result, our, their, sets, note: typeof d.note === 'string' ? d.note : '', raw: d };
   }
 
   let wCache = null, wSrc = null;
@@ -2872,6 +3023,206 @@ const CL = (() => {
 
   window.addEventListener('thug:club', () => { wCache = null; wSrc = null; });
   return { CLS, SHORT, club, wars, byWar, totals, byOpp, byPlayer, ofPerson, members, member, personByName, normWar };
+})();
+
+/* THUG 클랜 — 본인 확인(5단계, 2026-11-25). 클랜 마스터 결정: 신청하고 승인받기.
+   아이디를 골라 신청 → 번호 4자리 → 카톡방에 올림 → 운영진이 운영진 화면에서 승인. 운영진이 만든 개인 링크(#key=)로도 확인됨.
+   상태는 live.js의 LIVE.who. 창고가 0003 전이거나(LIVE.has3() 거짓) 임시 사이트(LIVE 없음)면 기능이 꺼져 있음.
+   묶는 순서: club.js 바로 뒤(CL.personByName을 씀) */
+const ME = (() => {
+  const can = () => !!(LIVE && typeof LIVE.has3 === 'function' && LIVE.has3());
+  const who = () => (LIVE && LIVE.who) || { state: 'none', name: null, code: null };
+  const state = () => (can() ? who().state || 'none' : 'none');
+  const nameLc = () => (state() === 'ok' && who().name ? String(who().name).toLowerCase() : null);
+  const person = () => { const n = nameLc(); return n ? CL.personByName(n) : null; };
+  // 보이는 이름: 명단에서 찾으면 그 사람 이름, 못 찾으면 받은 이름 그대로
+  const shown = (n) => { const p = n ? CL.personByName(n) : null; return p ? p.name : String(n || '?'); };
+  const TAG = { none: '안 함', pending: '승인 대기', ok: '확인됨', off: '끊김' };
+
+  const byName = (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
+  // 아이디 고르기: 찾기 칸 + 고르기 칸(80명 넘음). get()은 고른 사람
+  function picker(opt = {}) {
+    const people = DB.persons.slice().sort(byName);
+    const id = opt.id || 'mePick';
+    const q = h('input', { type: 'search', class: 'field', id: id + 'Q', placeholder: '이름 찾기', 'aria-label': '아이디 찾기', autocomplete: 'off', maxlength: '40' });
+    const sel = h('select', { class: 'field', id, 'aria-label': opt.label || '내 아이디' });
+    let cur = opt.selected && DB.byId.has(opt.selected) ? opt.selected : '';
+    const fill = () => {
+      const t = q.value.trim().toLowerCase();
+      const list = people.filter((p) => !t || [p.name, ...(p.aliases || [])].some((a) => String(a).toLowerCase().includes(t)));
+      if (t && list.length && !list.some((p) => p.id === cur)) cur = list[0].id;
+      sel.replaceChildren(...(list.length
+        ? [list.some((p) => p.id === cur) ? null : h('option', { value: '' }, '아이디 고르기'), ...list.map((p) => h('option', { value: p.id, selected: p.id === cur }, p.name))]
+        : [h('option', { value: '' }, '맞는 아이디 없음')]));
+      sel.value = list.some((p) => p.id === cur) ? cur : '';
+    };
+    q.addEventListener('input', fill);
+    sel.addEventListener('change', () => { cur = sel.value; });
+    fill();
+    return { el: h('div', { class: 'me-pick' }, q, sel), get: () => DB.byId.get(sel.value) || null, focus: () => q.focus() };
+  }
+
+  // 링크 복사·공유
+  async function copy(text) {
+    try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch { /* 아래 방법으로 */ }
+    try {
+      const t = h('textarea', { readonly: true, class: 'me-hide' });
+      t.value = text;
+      document.body.append(t);
+      t.select();
+      const ok = document.execCommand('copy');
+      t.remove();
+      return ok;
+    } catch { return false; }
+  }
+  async function shareLink(app, link) {
+    if (navigator.share) {
+      try { await navigator.share({ title: 'THUG 클랜 본인 확인', url: link }); return 'share'; } catch (e) { if (e && e.name === 'AbortError') return 'cancel'; }
+    }
+    if (await copy(link)) { app.toast('링크를 복사했습니다'); return 'copy'; }
+    app.toast('복사가 막혀 있습니다(링크 글자를 길게 눌러 복사)');
+    return 'fail';
+  }
+  // 링크 칸: 링크 글자 + [복사] [공유]
+  function linkBox(app, link, note) {
+    const f = h('input', { type: 'text', class: 'field me-url', readonly: true, value: link, 'aria-label': '링크', spellcheck: 'false' });
+    f.addEventListener('focus', () => f.select());
+    return h('div', { class: 'me-link' }, f,
+      h('div', { class: 'btns' },
+        h('button', { type: 'button', class: 'btn sm', onclick: async () => { app.toast(await copy(link) ? '링크를 복사했습니다' : '복사가 막혀 있습니다(링크 글자를 길게 눌러 복사)'); } }, '복사'),
+        navigator.share ? h('button', { type: 'button', class: 'btn sm', onclick: () => shareLink(app, link) }, '공유') : null),
+      note ? h('p', { class: 'note' }, note) : null);
+  }
+
+  const askWhy = (r) => (!r ? '연결이 안 됩니다. 잠시 뒤 다시 해 주세요.'
+    : r.reason === 'wait' ? '신청이 너무 많습니다(하루 뒤 다시).'
+      : r.reason === 'full' ? '대기 신청이 가득 찼습니다(운영진에게 알려 주세요).'
+        : r.reason === 'name' ? '아이디를 다시 골라 주세요.'
+          : r.reason === 'pass' ? '입장 기록이 끝났습니다(나갔다가 다시 입장).'
+            : r.reason === 'many' ? '기기가 너무 많습니다(한 사람 8개까지).'
+              : r.reason === 'key' ? '이 기기의 본인 확인이 풀렸습니다.'
+                : '하지 못했습니다.');
+
+  function head(title, right) {
+    return h('div', { class: 'pnl-h' }, h('h2', null, title), right ? h('div', { class: 'pnl-r' }, right) : null);
+  }
+
+  // 신청 칸(none·off)
+  function askForm(app, busyOff, label, again) {
+    const prev = again ? CL.personByName(again) : null; // 다시 신청: 끊긴 아이디를 먼저 골라 둠
+    const pk = picker({ id: 'mePick', selected: prev ? prev.id : app.me() });
+    const msg = h('p', { class: 'note', role: 'status' });
+    const go = h('button', { type: 'button', class: 'btn hot', disabled: busyOff }, label);
+    go.addEventListener('click', async () => {
+      const p = pk.get();
+      if (!p) { msg.textContent = '내 아이디를 골라 주세요.'; pk.focus(); return; }
+      go.disabled = true; msg.textContent = '신청하는 중입니다.';
+      const r = await LIVE.keyAsk(p.name);
+      if (r && r.ok) { app.setMe(p.id); return; } // thug:me → 패널이 대기 화면으로 바뀜
+      go.disabled = false;
+      msg.textContent = askWhy(r);
+    });
+    return [h('label', { class: 'lbl', for: 'mePickQ' }, '내 아이디'), pk.el, h('div', { class: 'btns' }, go), msg,
+      h('p', { class: 'note' }, '나온 번호를 카톡방에 올리면 운영진이 승인')];
+  }
+
+  function inner(app, redraw) {
+    if (!LIVE) return [head('본인 확인'), h('div', { class: 'pnl-b' }, h('p', { class: 'note me-first' }, '정식판에서 쓰는 기능(임시 사이트는 이 기기에만 저장)'))];
+    if (!can()) return [head('본인 확인'), h('div', { class: 'pnl-b' }, h('p', { class: 'note me-first' }, '준비 중'))];
+    const st = state(), w = who();
+    const off = !!LIVE.offline;
+    const kids = [];
+    if (off) kids.push(h('p', { class: 'note me-first' }, '연결 없음(연결된 뒤에 신청·확인)'));
+
+    if (st === 'pending') {
+      const msg = h('p', { class: 'note', role: 'status' });
+      const chk = h('button', { type: 'button', class: 'btn hot', disabled: off }, '승인됐는지 확인');
+      chk.addEventListener('click', async () => {
+        chk.disabled = true; msg.textContent = '확인하는 중입니다.';
+        const ok = await LIVE.refreshMe();
+        if (!chk.isConnected) return;
+        chk.disabled = false;
+        msg.textContent = !ok ? '연결이 안 됩니다. 잠시 뒤 다시 해 주세요.' : state() === 'pending' ? '아직 승인 대기' : '';
+      });
+      const cancel = h('button', { type: 'button', class: 'btn out' }, '신청 취소');
+      cancel.addEventListener('click', () => {
+        let yes = true;
+        try { yes = window.confirm('본인 확인 신청을 취소할까요?'); } catch { yes = true; }
+        if (yes) { cancel.disabled = true; LIVE.keyDrop(); }
+      });
+      kids.push(
+        h('p', { class: 'me-who' }, h('span', { class: 'nm' }, shown(w.name)), h('span', { class: 'c-dim' }, '승인 대기')),
+        h('p', { class: 'me-code', 'aria-label': `신청 번호 ${w.code || ''}` }, w.code || '----'),
+        h('p', null, '카톡방에 아이디와 이 번호를 올려 주세요'),
+        h('div', { class: 'btns' }, chk, cancel), msg);
+    } else if (st === 'ok') {
+      const p = person();
+      const msg = h('p', { class: 'note', role: 'status' });
+      const slot = h('div');
+      const more = h('button', { type: 'button', class: 'btn', disabled: off }, '다른 기기에서도 쓰기');
+      more.addEventListener('click', async () => {
+        more.disabled = true; msg.textContent = '링크를 만드는 중입니다.';
+        const r = await LIVE.keyMore();
+        if (!more.isConnected) return;
+        more.disabled = false;
+        if (r && r.ok && r.key) {
+          msg.textContent = '';
+          const link = LIVE.linkOf(r.key);
+          slot.replaceChildren(linkBox(app, link, '다른 기기에서 이 링크를 열면 확인됨(다시 볼 수 없음)'));
+          shareLink(app, link);
+          return;
+        }
+        msg.textContent = askWhy(r);
+      });
+      const drop = h('button', { type: 'button', class: 'btn out' }, '이 기기에서 풀기');
+      drop.addEventListener('click', () => {
+        let yes = true;
+        try { yes = window.confirm('이 기기에서 본인 확인을 풀까요? 다시 쓰려면 다시 신청하거나 링크가 필요합니다.'); } catch { yes = true; }
+        if (yes) { drop.disabled = true; LIVE.keyDrop().then(() => app.toast('이 기기에서 본인 확인을 풀었습니다')); }
+      });
+      kids.push(
+        h('p', { class: 'me-who' }, p ? app.icon(p, 24) : null, h('span', { class: 'nm' }, `${shown(w.name)} 님으로 확인됨`)),
+        p ? null : h('p', { class: 'note' }, '명단에 없는 아이디(기록 수집 전)'),
+        h('div', { class: 'btns' }, more, drop), msg, slot);
+    } else {
+      if (st === 'off') kids.push(h('p', { class: 'me-who' }, h('span', { class: 'nm' }, shown(w.name)), h('span', { class: 'l' }, '승인되지 않았거나 운영진이 끊음')));
+      kids.push(...askForm(app, off, st === 'off' ? '다시 신청' : '본인 확인 신청', st === 'off' ? w.name : null));
+    }
+    return [head('본인 확인', h('span', { class: 'pnl-sub' }, TAG[st] || '')), h('div', { class: 'pnl-b' }, ...kids)];
+  }
+
+  // 본인 확인 패널. 본인 상태가 바뀌면(thug:me) 그 자리에서 다시 그림
+  function panel(app) {
+    const box = h('section', { class: 'pnl me-pnl', 'aria-label': '본인 확인' });
+    const draw = () => box.replaceChildren(...inner(app, draw));
+    if (LIVE) {
+      const on = () => { if (box.isConnected) draw(); };
+      window.addEventListener('thug:me', on);
+      window.addEventListener('thug:net', on);
+      app.onLeave(() => { window.removeEventListener('thug:me', on); window.removeEventListener('thug:net', on); });
+    }
+    draw();
+    return box;
+  }
+
+  // #me 화면
+  function view(app) {
+    const title = h('header', { class: 'ptitle' }, h('h1', null, '본인 확인'), h('p', null, '꾸미기 공유와 방명록 쓰기에 필요'));
+    const go = state() === 'ok' ? h('div', { class: 'btns me-go' }, h('a', { class: 'btn', href: '#look' }, '꾸미기'), h('a', { class: 'btn', href: '#channel' }, '채널')) : null;
+    return h('div', { class: 'page me-page' }, title, panel(app), go);
+  }
+
+  // 한 줄 안내: "글을 쓰려면 본인 확인이 필요합니다 [본인 확인]". 기능이 꺼져 있거나 이미 확인됐으면 null
+  function gateLine(app, what) {
+    if (!can()) return null;
+    const st = state();
+    if (st === 'ok') return null;
+    return h('p', { class: 'me-gate' },
+      h('span', null, `${what ? what + ' ' : ''}본인 확인이 필요합니다${st === 'pending' ? '(승인 대기 중)' : ''}`),
+      h('a', { class: 'btn sm', href: '#me' }, '본인 확인'));
+  }
+
+  return { can, state, nameLc, person, panel, view, gateLine, shown, picker, linkBox, shareLink, copy };
 })();
 
 /* THUG 클랜 — 메뉴와 패널에 쓰는 12x12 도트 아이콘(이 사이트에서 새로 그림) */
@@ -3155,32 +3506,55 @@ const V = (() => {
     const seg = (cls, ...kids) => h('span', { class: 'seg' + (cls ? ' ' + cls : '') }, ...kids);
     const line = (cls, t, ...kids) => h('li', { class: 'c' + (cls ? ' ' + cls : '') }, ts(t), h('span', { class: 'c-main' }, ...kids));
     const segLine = (cls, t, ...segs) => h('li', { class: 'c' + (cls ? ' ' + cls : '') }, ts(t), h('span', { class: 'c-main segs' }, ...segs));
-    const lines = [];
-    const first = ev[0] ? ev[0].t : DB.NOW;
-    lines.push(segLine('c-start', first, seg('', '기록 시작'), seg('', `최근 내전과 래더 ${games.length}판`)));
-    let day = '';
-    for (const e of ev) {
-      const k = fmt.dayKey(e.t);
-      if (k !== day) { day = k; lines.push(h('li', { class: 'c-day', role: 'separator' }, h('span', null, fmt.dayW(e.t)))); }
+    // 줄은 한 번만 만들어 두고(경기·대사는 e에, 사람이 쓴 글은 번호로) 새 글이 오면 순서만 다시 짬
+    const lineOf = (e) => {
+      if (e.el) return e.el;
       if (e.say) {
-        lines.push(line('c-line-say', e.t, nb(h('span', { class: 'c-who' }, app.icon(e.say.p, 16), plink(e.say.p)), h('span', { class: 'c-colon' }, ':')), h('span', { class: 'c-say' }, e.say.text)));
-        continue;
+        e.el = line('c-line-say', e.t, nb(h('span', { class: 'c-who' }, app.icon(e.say.p, 16), plink(e.say.p)), h('span', { class: 'c-colon' }, ':')), h('span', { class: 'c-say' }, e.say.text));
+        return e.el;
       }
       const g = e.g, W = g.p[g.winner], L = g.p[1 - g.winner];
       const upset = g.upset ? h('span', { class: 'upset' }, '이변') : null;
       const kt = tag(g.kind, KIND[g.kind]);
       if (g.kind === 'internal' || (W.id && L.id)) {
-        lines.push(segLine('k-' + g.kind, g.time, seg('', nb(kt, nameOf(W), ' 님이'), ' ', nb(nameOf(L), ' 님에게 승리', upset)), seg('c-dim', g.map), seg('c-dim', fmt.lenKo(g.len))));
+        e.el = segLine('k-' + g.kind, g.time, seg('', nb(kt, nameOf(W), ' 님이'), ' ', nb(nameOf(L), ' 님에게 승리', upset)), seg('c-dim', g.map), seg('c-dim', fmt.lenKo(g.len)));
       } else {
         const t = W.id ? W : L, won = t === W, o = won ? L : W;
-        lines.push(segLine('k-' + g.kind, g.time, seg('', nb(kt, nameOf(t), won ? h('span', { class: 'w' }, ' 승리') : h('span', { class: 'l' }, ' 패배'))), seg('c-dim', nb('상대 ', o.n)), seg('c-dim', g.map)));
+        e.el = segLine('k-' + g.kind, g.time, seg('', nb(kt, nameOf(t), won ? h('span', { class: 'w' }, ' 승리') : h('span', { class: 'l' }, ' 패배'))), seg('c-dim', nb('상대 ', o.n)), seg('c-dim', g.map));
       }
-    }
-    if (fmt.dayKey(DB.NOW) !== day) lines.push(h('li', { class: 'c-day', role: 'separator' }, h('span', null, fmt.dayW(DB.NOW))));
-    // 노란 줄은 클랜 마스터 공지 하나만(입장·기록 시각 줄은 머리 줄과 겹쳐 뺌, 기기 저장 안내는 꾸미기 화면에)
+      return e.el;
+    };
+    // 사람이 쓴 글(방명록·채팅): 시각 칸 + 초상·이름 + 글. 글은 글자로만 넣음(주소처럼 보여도 링크로 바꾸지 않음)
+    const postsOn = typeof PO !== 'undefined' && PO.on();
+    const postEl = new Map();
+    const postLine = (po) => {
+      let el = postEl.get(po.id);
+      if (el) return el;
+      const P = CL.personByName(po.n);
+      const mine = PO.isMine(po);
+      const del = PO.delBtn(app, po);
+      const who = P ? [app.icon(P, 16), plink(P)] : [h('span', { class: 'pt-none' }), h('span', { class: 'outsider' }, po.n)];
+      el = h('li', { class: 'c c-post' + (mine ? ' mine' : '') + (del ? ' has-del' : ''), 'data-post': po.id },
+        ts(PO.time(po)),
+        h('span', { class: 'c-main' }, nb(h('span', { class: 'c-who' }, ...who), h('span', { class: 'c-colon' }, ':')), h('span', { class: 'c-msg' }, po.b)),
+        del);
+      postEl.set(po.id, el);
+      return el;
+    };
+    const dayEl = new Map();
+    const daySep = (t) => {
+      const k = fmt.dayKey(t);
+      if (!dayEl.has(k)) dayEl.set(k, h('li', { class: 'c-day', role: 'separator' }, h('span', null, fmt.dayW(t))));
+      return dayEl.get(k);
+    };
+    const first = ev[0] ? ev[0].t : DB.NOW;
+    const startLine = segLine('c-start', first, seg('', '기록 시작'), seg('', `최근 내전과 래더 ${games.length}판`));
+    // 노란 줄은 클랜 마스터 공지 하나만(입장·기록 시각 줄은 머리 줄과 겹쳐 뺌, 기기 저장 안내는 꾸미기 화면에).
+    // 공지는 PC에서 맨 아래, 휴대폰에서 맨 위에 고정. 기록 시각보다 늦은 글이 있으면 공지의 시각 칸은 비움
     const master = DB.byId.get(DB.S.meta.master);
     const annLine = master ? segLine('c-ann', DB.NOW, seg('', nb(tag('note', '공지'), '클랜 마스터'), ' ', nb(plink(master), ' 님')), seg('', '내전 신청은 카톡 오픈채팅으로')) : null;
-    if (annLine) lines.push(annLine);
+    const annT = annLine ? annLine.querySelector('.c-t') : null;
+    let lines = [], phoneLines = [];
     // 휴대폰 순서(새것 먼저): 마스터 공지를 맨 위에 두고, 가장 최근 날짜 줄과 그날 소식(새것→옛것), 그 앞 날짜 줄과 소식… 순.
     // 날짜 줄이 제 묶음 위에 오도록 column-reverse 대신 목록을 새로 짬. 소식이 없는 날짜 줄(오늘 공지만 있는 날)은 뺌
     const newestFirst = () => {
@@ -3194,29 +3568,72 @@ const V = (() => {
       for (const g of groups.reverse()) if (g.items.length) out.push(...(g.sep ? [g.sep] : []), ...g.items.reverse());
       return out;
     };
-    const phoneLines = newestFirst();
+    const compose = () => {
+      const evs = postsOn ? [...ev, ...PO.list().map((po) => ({ t: PO.time(po), post: po }))].sort((a, b) => a.t - b.t) : ev;
+      if (postsOn) { const live = new Set(PO.list().map((po) => po.id)); for (const id of postEl.keys()) if (!live.has(id)) postEl.delete(id); }
+      lines = [startLine];
+      let day = '';
+      for (const e of evs) {
+        const k = fmt.dayKey(e.t);
+        if (k !== day) { day = k; lines.push(daySep(e.t)); }
+        lines.push(e.post ? postLine(e.post) : lineOf(e));
+      }
+      const later = evs.length && evs[evs.length - 1].t > DB.NOW;
+      if (!later && fmt.dayKey(DB.NOW) !== day) lines.push(daySep(DB.NOW));
+      if (annT) annT.textContent = later ? '' : fmt.hm(DB.NOW);
+      if (annLine) lines.push(annLine);
+      phoneLines = newestFirst();
+    };
+    compose();
     // 휴대폰: 안쪽 스크롤 없이 새것부터 30줄씩, 아래에 '이전 소식 더 보기'(옛 소식을 아래에 덧붙임). PC·태블릿: 높이가 정해진 칸 안에서 옛것→새것, 맨 아래로 스크롤
     const STEP = 30;
-    let shownN = STEP;
+    // 보던 개수는 같은 채널을 다시 그릴 때(본인 확인·클랜 기록이 바뀜) 이어 씀. 다른 화면으로 가면 처음부터
+    if (!(st.newsShown >= STEP)) st.newsShown = STEP;
+    app.onLeave(() => { if (!/^#?(channel)?$/.test(location.hash)) delete st.newsShown; });
     const phone = (() => { try { return matchMedia('(max-width: 699px)'); } catch { return null; } })();
+    const isPhone = () => !!(phone && phone.matches);
     const olderBtn = h('button', { type: 'button', class: 'btn sm wide' }, '이전 소식 더 보기');
     const olderW = h('div', { class: 'news-older' }, olderBtn);
     const drawLog = () => {
-      if (!(phone && phone.matches)) { log.replaceChildren(...lines); olderW.hidden = true; return; }
-      log.replaceChildren(...phoneLines.slice(0, shownN));
-      olderW.hidden = phoneLines.length <= shownN;
+      if (!isPhone()) { log.replaceChildren(...lines); olderW.hidden = true; return; }
+      log.replaceChildren(...phoneLines.slice(0, st.newsShown));
+      olderW.hidden = phoneLines.length <= st.newsShown;
     };
-    olderBtn.addEventListener('click', () => { shownN += STEP; drawLog(); });
+    olderBtn.addEventListener('click', () => { st.newsShown += STEP; drawLog(); });
     drawLog();
     if (phone && phone.addEventListener) {
       const onMq = () => { drawLog(); toBottom(); };
       phone.addEventListener('change', onMq);
       app.onLeave(() => phone.removeEventListener('change', onMq));
     }
-    const newsPanel = pnl('소식', { cls: 'p-news', flush: true, right: h('a', { class: 'more', href: '#games' }, '전적 전체') },
-      h('div', { class: 'chat-wrap', tabindex: '0', 'aria-label': '소식 기록' }, log, olderW));
-    const toBottom = () => { const w = newsPanel.querySelector('.chat-wrap'); if (w) w.scrollTop = w.scrollHeight; };
+    // 입력 줄: PC·태블릿은 소식 칸 맨 아래(칸 높이 안), 휴대폰은 목록 위(posts.css의 order). 꺼져 있으면 없음
+    const inRow = postsOn ? PO.inputLine(app) : null;
+    const wrap = h('div', { class: 'chat-wrap', tabindex: '0', 'aria-label': '소식 기록' }, log, olderW);
+    const newsPanel = pnl('소식', { cls: 'p-news' + (inRow ? ' has-in' : ''), flush: true, right: h('a', { class: 'more', href: '#games' }, '전적 전체') },
+      wrap, inRow);
+    const toBottom = () => { wrap.scrollTop = wrap.scrollHeight; };
     app.onMount(toBottom);
+    // 새 글이 오거나 지워지면 다시 그림. PC·태블릿: 맨 아래에 붙어 있었을 때(또는 내가 쓴 글)만 아래로 따라감.
+    // 휴대폰: 새 글은 목록 위에 끼우고, 아래쪽을 읽던 중이면 읽던 줄을 화면의 같은 자리에 둠
+    const refresh = (chg) => {
+      if (!isPhone()) {
+        const stick = (chg && chg.mine) || wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 32;
+        compose(); drawLog();
+        if (stick) toBottom();
+        return;
+      }
+      let anchor = null, top0 = 0;
+      if (log.getBoundingClientRect().top < 0) {
+        for (const li of log.children) { const r = li.getBoundingClientRect(); if (r.bottom > 0) { anchor = li; top0 = r.top; break; } }
+      }
+      const n0 = phoneLines.length;
+      compose();
+      // 아래쪽을 읽던 중이면 보던 줄이 '더 보기' 뒤로 밀려나지 않게 보이는 개수를 새 줄만큼 늘림
+      if (anchor) st.newsShown += Math.max(0, phoneLines.length - n0);
+      drawLog();
+      if (anchor && anchor.isConnected) { const d = anchor.getBoundingClientRect().top - top0; if (d) window.scrollBy(0, d); }
+    };
+    if (postsOn) PO.watch(app, refresh);
 
     // --- 래더 + 정보 ---
     const ladderPanel = pnl('래더', { cls: 'p-lad', flush: true, right: h('span', { class: 'pnl-sub' }, '래더 점수 순') },
@@ -3598,7 +4015,8 @@ const V = (() => {
           h('p', { class: 'say' }, h('span', { class: 'say-k' }, '한마디'), h('span', { class: 'say-t' }, app.lineOf(p))),
           h('div', { class: 'btns' },
             foe ? h('a', { class: 'btn', href: `#duel--${p.id}--${foe}` }, '맞대결 보기') : null,
-            h('a', { class: 'btn', href: '#look', onclick: () => app.setMe(p.id) }, '이 초상 꾸미기'),
+            // 본인 확인된 기기에서는 꾸미기가 그 사람으로 고정되므로 내 프로필에만
+            (() => { const mp = typeof ME !== 'undefined' && ME.can() && ME.person ? ME.person() : null; return !mp || mp.id === p.id ? h('a', { class: 'btn', href: '#look', onclick: () => { if (!mp) app.setMe(p.id); } }, mp ? '내 초상 꾸미기' : '이 초상 꾸미기') : null; })(),
             typeof CD !== 'undefined' && CD.open ? h('button', { type: 'button', class: 'btn', onclick: (e) => CD.open('profile', p, app, e.currentTarget) }, '전적 카드') : null,
             h('a', { class: 'btn', href: p.rmUrl, target: '_blank', rel: 'noopener' }, 'RepMastered'))),
         h('div', { class: 'prof-side' },
@@ -3759,12 +4177,19 @@ const V = (() => {
 
   // ================= 꾸미기 =================
   function look(app) {
-    let id = app.me() || (DB.ladder[0] || DB.persons[0]).id;
+    const st = app.state;
+    // 본인 확인(me.js의 ME, 창고 0003 뒤에만 켜짐): 확인된 사람이면 그 사람으로 고정하고 저장하면 모두에게 보임
+    const meOn = typeof ME !== 'undefined' && ME.can();
+    const meP = meOn && ME.person ? ME.person() : null;
+    let id = meP ? meP.id : app.me() || (DB.ladder[0] || DB.persons[0]).id;
     if (!DB.byId.has(id)) id = (DB.ladder[0] || DB.persons[0]).id;
     let p = DB.byId.get(id);
     let cur = app.lookOf(p);
     let live = null;
-    const sel = h('select', { id: 'me', class: 'field pick', 'aria-label': '내 아이디' },
+    // 고르던 모습·쓰던 대사는 이 화면을 다시 그릴 때(본인 확인·클랜 기록이 바뀜) 이어 씀. 저장·처음 모습·다른 화면으로 가면 버림
+    const keep = () => { st.lookDraft = { id, cur, say: say.value, win: winL.value, lose: loseL.value }; };
+    app.onLeave(() => { if (location.hash !== '#look') delete st.lookDraft; });
+    const sel = meP ? null : h('select', { id: 'me', class: 'field pick', 'aria-label': '내 아이디' },
       DB.persons.slice().sort(byName).map((x) => { const o = h('option', { value: x.id }, x.name); if (x.id === id) o.selected = true; return o; }));
     const stage = h('div', { class: 'look-stage' });
     const raceNote = h('p', { class: 'note' });
@@ -3797,7 +4222,7 @@ const V = (() => {
             return h('button', { type: 'button', class: 'chip locked', disabled: true, title: `${DB.gradeName(need)} 등급부터` },
               ...face, h('small', { class: 'need' }, `${DB.gradeName(need)}부터`));
           }
-          return chipBtn(cur[g.key] === o.id, face, () => { cur = app.fitLook({ ...cur, [g.key]: o.id }, p); drawOpts(); drawPreview(); });
+          return chipBtn(cur[g.key] === o.id, face, () => { cur = app.fitLook({ ...cur, [g.key]: o.id }, p); keep(); drawOpts(); drawPreview(); });
         })))));
     };
     // 등급별 지급 표: 엔진의 need에서 읽어 만듦 + 엔진이 그리는 등급 장식은 문구로
@@ -3831,7 +4256,7 @@ const V = (() => {
     const drawMedals = () => {
       const ms = app.medalsOf(p);
       const on = app.medalKind(p, cur) ? cur.medal : null;
-      const pick = (lid) => { cur = { ...cur, medal: lid }; if (!lid) delete cur.medal; drawMedals(); drawPreview(); };
+      const pick = (lid) => { cur = { ...cur, medal: lid }; if (!lid) delete cur.medal; keep(); drawMedals(); drawPreview(); };
       medalOpts.replaceChildren(chipBtn(!on, '안 달기', () => pick(null)),
         ...ms.map((m) => chipBtn(on === m.leagueId, [typeof MD !== 'undefined' ? MD.icon(m.kind, 16) : null, ` ${typeof MD !== 'undefined' ? MD.LABEL[m.kind] : m.kind} · ${m.leagueName}`], () => pick(m.leagueId))));
       if (!ms.length) medalOpts.append(h('span', { class: 'c-dim' }, ' 리그에서 3위 안에 들면 메달이 생깁니다.'));
@@ -3846,36 +4271,81 @@ const V = (() => {
       ];
       earned.replaceChildren(...items.map(([n, on, d]) => h('li', { class: on ? 'on' : '' }, h('span', { class: 'e-st' }, on ? '얻음' : '잠김'), h('span', { class: 'e-n' }, n), h('span', { class: 'e-d' }, d))));
     };
-    const load = (nid) => {
+    const load = (nid, draft) => {
       id = nid; p = DB.byId.get(id);
-      cur = app.lookOf(p);
+      const d = draft && draft.id === id ? draft : null;
+      cur = d && d.cur ? app.fitLook(d.cur, p) : app.lookOf(p);
       const ln = app.linesOf(p);
-      say.value = ln.say; winL.value = ln.win; loseL.value = ln.lose;
+      say.value = d ? d.say : ln.say; winL.value = d ? d.win : ln.win; loseL.value = d ? d.lose : ln.lose;
       say.placeholder = DB.autoLine(p);
       drawOpts(); drawMedals(); drawPreview(); drawEarned(); drawGrade();
     };
-    sel.addEventListener('change', () => { app.setMe(sel.value); load(sel.value); });
-    say.addEventListener('input', () => { const b = stage.querySelector('.bubble'); if (b) b.textContent = say.value.trim() || DB.autoLine(p); });
+    if (sel) sel.addEventListener('change', () => { app.setMe(sel.value); delete st.lookDraft; load(sel.value); });
+    say.addEventListener('input', () => { keep(); const b = stage.querySelector('.bubble'); if (b) b.textContent = say.value.trim() || DB.autoLine(p); });
+    winL.addEventListener('input', keep);
+    loseL.addEventListener('input', keep);
     const save = h('button', { type: 'button', class: 'btn hot' }, '저장');
     const reset = h('button', { type: 'button', class: 'btn' }, '처음 모습으로');
-    save.addEventListener('click', () => {
-      app.setMe(id);
-      const ok = store.set('thug.look2.' + id, cur) && store.set('thug.line.' + id, { say: say.value.trim(), win: winL.value.trim(), lose: loseL.value.trim() });
+    const LOOK_MSG = { key: '본인 확인이 풀려 저장하지 못했습니다.', size: '꾸미기 내용이 너무 커서 저장하지 못했습니다.', pass: '입장 기록이 끝나 저장하지 못했습니다.' };
+    const why = (r) => (!r || !r.reason || r.reason === 'net' ? '연결이 안 돼 저장하지 못했습니다.' : LOOK_MSG[r.reason] || '저장하지 못했습니다.');
+    const lock = (on) => { for (const b of [save, reset]) { b.disabled = on; if (on) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); } };
+    save.addEventListener('click', async () => {
+      const lines = { say: say.value.trim(), win: winL.value.trim(), lose: loseL.value.trim() };
+      if (!meP) app.setMe(id);
+      if (app.saveLook) {
+        // main.js: 확인된 본인이면 창고와 이 기기에, 아니면 이 기기에만
+        lock(true);
+        let r = null;
+        try { r = await app.saveLook(p, cur, lines); } catch (e) { console.error(e); r = null; }
+        lock(false);
+        app.clearIcons();
+        if (r && r.ok) delete st.lookDraft;
+        app.toast(r && r.ok ? (r.shared ? '저장했습니다. 모두에게 보입니다.' : '이 기기에 저장했습니다. 채널과 프로필에 바로 보입니다.') : why(r));
+        return;
+      }
+      const ok = store.set('thug.look2.' + id, cur) && store.set('thug.line.' + id, lines);
       app.clearIcons();
+      if (ok) delete st.lookDraft;
       app.toast(ok ? '이 기기에 저장했습니다. 채널과 프로필에 바로 보입니다.' : '이 기기에서는 저장이 막혀 있습니다.');
     });
-    reset.addEventListener('click', () => {
+    reset.addEventListener('click', async () => {
+      if (meP) {
+        let ok = true;
+        try { ok = window.confirm('처음 모습으로 돌릴까요? 모습과 대사가 모두에게서 지워집니다.'); } catch { ok = true; }
+        if (!ok) return;
+      }
+      delete st.lookDraft;
+      if (app.resetLook) {
+        lock(true);
+        let r = null;
+        try { r = await app.resetLook(p); } catch (e) { console.error(e); r = null; }
+        lock(false);
+        app.clearIcons();
+        load(id);
+        app.toast(r && r.ok ? (r.shared ? '모두에게 처음 모습으로 돌렸습니다.' : '처음 모습으로 돌렸습니다.') : why(r).replace('저장하지', '되돌리지'));
+        return;
+      }
       store.del('thug.look2.' + id); store.del('thug.line.' + id);
       app.clearIcons();
       load(id);
       app.toast('처음 모습으로 돌렸습니다.');
     });
     app.onLeave(() => { if (live && live.destroy) live.destroy(); });
-    load(id);
+    load(id, st.lookDraft);
+    // 저장 안내: 확인됨 → 모두에게 / 본인 확인 기능이 켜졌지만 확인 전 → 이 기기에만(미리 보기용) / 그 전 → 지금 문구
+    const saveNote = meP ? '저장하면 모두에게 보임 (채널·프로필)'
+      : meOn ? '이 기기에만 저장 (본인 확인 뒤 저장하면 모두에게 보임)'
+        : LIVE ? '꾸민 모습과 대사는 이 기기에만 저장됩니다.' : '임시 사이트라 이 기기에만 저장됩니다. 정식판에서는 로그인해서 저장하고 모두에게 보입니다.';
+    let mePanel = null;
+    if (meOn && ME.panel) { try { mePanel = ME.panel(app); } catch (e) { console.error(e); mePanel = null; } }
     return h('div', { class: 'page' }, pageTitle('꾸미기', '내 초상의 모습과 대사를 고릅니다'),
+      mePanel,
       h('div', { class: 'look' },
-        pnl('미리 보기', null, h('label', { class: 'lbl', for: 'me' }, '내 아이디'), sel, stage, raceNote,
-          h('p', { class: 'note' }, LIVE ? '꾸민 모습과 대사는 이 기기에만 저장됩니다.' : '임시 사이트라 이 기기에만 저장됩니다. 정식판에서는 로그인해서 저장하고 모두에게 보입니다.')),
+        pnl('미리 보기', null,
+          meP ? [h('p', { class: 'lbl' }, '내 아이디'), h('p', { class: 'look-me' }, raceBadge(p.main), h('span', { class: 'nm' }, p.name))]
+            : [h('label', { class: 'lbl', for: 'me' }, '내 아이디'), sel],
+          stage, raceNote,
+          h('p', { class: 'note' }, saveNote)),
         h('div', { class: 'stack' },
           pnl('내 등급', { right: h('span', { class: 'pnl-sub' }, '래더 최고 티어와 내전 점수 중 높은 쪽') }, myGrade),
           pnl('메달', null, medalOpts,
@@ -3918,16 +4388,24 @@ const AD = (() => {
 
   function view(app) {
     const root = h('div', { class: 'page adm-page' });
-    const st = { q: '', f: 'all', dirty: new Map(), saved: 0 };
+    // sec: 고른 구역(0003 창고일 때). issued: 방금 만든 개인 링크(한 번만 보여 줌, 화면을 떠나면 사라짐)
+    const st = { q: '', f: 'all', dirty: new Map(), saved: 0, sec: AD.sec || 'mem', issued: null, kq: '' };
     const draw = () => root.replaceChildren(...parts(app, st, draw));
     // 다른 기기·화면에서 운영진 상태가 바뀌면 다시 그림(고치던 줄은 st.dirty에 남음)
     const onAdmin = () => { if (root.isConnected) draw(); };
     window.addEventListener('thug:admin', onAdmin);
     window.addEventListener('thug:net', onAdmin);
-    app.onLeave(() => { window.removeEventListener('thug:admin', onAdmin); window.removeEventListener('thug:net', onAdmin); });
+    window.addEventListener('thug:admindata', onAdmin);
+    app.onLeave(() => {
+      window.removeEventListener('thug:admin', onAdmin); window.removeEventListener('thug:net', onAdmin); window.removeEventListener('thug:admindata', onAdmin);
+    });
     draw();
+    // 들어올 때마다 운영진 자료(신청 목록·메모)를 새로 받음
+    if (LIVE.has3() && LIVE.isAdmin() && !LIVE.offline) LIVE.refreshAdmin();
     return root;
   }
+
+  const pendingN = () => ((LIVE.adminData && LIVE.adminData.keys) || []).filter((k) => k && k.state === 'pending').length;
 
   function parts(app, st, draw) {
     const admin = LIVE.isAdmin();
@@ -3935,12 +4413,161 @@ const AD = (() => {
     if (LIVE.offline) out.push(pnl('연결 없음', {}, h('p', null, '지금은 연결이 안 되어 이 기기에 저장해 둔 기록으로 보고 있습니다. 운영진 일은 연결된 뒤에 할 수 있습니다.')));
     out.push(enterPanel(app, admin, draw));
     out.push(collectorPanel());
-    if (admin && !LIVE.offline) {
+    if (!admin || LIVE.offline) return out;
+    const pwGrid = () => h('div', { class: 'grid2' }, entryPwPanel(), adminPwPanel(app));
+    if (!LIVE.has3()) { // 0003 전 창고: 지금 화면 그대로
       out.push(memberPanel(app, st, draw));
-      out.push(h('div', { class: 'grid2' }, entryPwPanel(), adminPwPanel(app)));
+      out.push(pwGrid());
+      return out;
     }
+    // 구역 칩: 고른 구역만 보임
+    const hasTA = typeof TA !== 'undefined';
+    const n = pendingN();
+    const SECS = [['mem', '클랜원'], ['key', '본인 확인', n], hasTA ? ['title', '칭호'] : null, ['pw', '암호']].filter(Boolean);
+    if (!SECS.some(([k]) => k === st.sec)) st.sec = 'mem';
+    out.push(h('div', { class: 'chips adm-secs', role: 'group', 'aria-label': '운영진 화면 구역' },
+      SECS.map(([k, t, c]) => h('button', { type: 'button', class: 'chip', 'aria-pressed': String(st.sec === k), onclick: () => { st.sec = k; AD.sec = k; draw(); } },
+        t, c ? h('span', { class: 'chip-n' }, `신청 ${c}`) : null))));
+    if (st.sec === 'mem') out.push(memberPanel(app, st, draw));
+    else if (st.sec === 'key') out.push(...keyPanels(app, st, draw));
+    else if (st.sec === 'title' && hasTA) {
+      try { out.push(TA.panel(app, draw)); } catch (e) { console.error(e); out.push(pnl('칭호', {}, h('p', { class: 'note' }, '칭호 화면을 열지 못했습니다.'))); }
+    } else out.push(pwGrid());
     return out;
   }
+
+  // 본인 확인 구역: (가) 대기 신청 (나) 확인된 사람 (다) 개인 링크 만들기
+  const keyWhy = (r) => (!r ? '연결이 안 됩니다. 잠시 뒤 다시 해 주세요.'
+    : r.reason === 'gone' ? '이미 처리됐거나 없는 신청입니다.'
+      : r.reason === 'many' ? '기기가 너무 많습니다(한 사람 20개까지).'
+        : r.reason === 'name' ? '아이디를 다시 골라 주세요.'
+          : why(r));
+  const atOf = (s) => { const t = Date.parse(s || ''); return Number.isNaN(t) ? null : t; };
+  const ago = (t) => {
+    if (t == null) return '';
+    const m = Math.floor((Date.now() - t) / 60e3);
+    return m < 1 ? '방금' : m < 60 ? `${m}분 전` : m < 1440 ? `${Math.floor(m / 60)}시간 전` : fmt.day(t);
+  };
+  function whoCell(app, name) {
+    const p = CL.personByName(name);
+    return h('span', { class: 'adm-m-id' },
+      p ? app.icon(p, 24) : h('span', { class: 'pt-none' }),
+      h('span', { class: 'adm-m-n' }, p ? h('a', { class: 'plink nm', href: '#p--' + p.id }, p.name) : h('span', { class: 'nm' }, String(name || '?')),
+        p ? null : h('span', { class: 'c-dim adm-m-s' }, '명단에 없는 아이디')));
+  }
+
+  function keyPanels(app, st, draw) {
+    const ad = LIVE.adminData;
+    if (!ad) {
+      return [pnl('본인 확인', {}, h('p', null, '신청 목록을 받는 중입니다.'),
+        h('div', { class: 'btns' }, h('button', { type: 'button', class: 'btn', onclick: () => LIVE.refreshAdmin().then((ok) => { if (!ok) app.toast('연결이 안 됩니다. 잠시 뒤 다시 해 주세요.'); }) }, '다시 받기')))];
+    }
+    const keys = ad.keys.filter((k) => k && k.id);
+    const status = h('p', { class: 'note', role: 'status' }), okSt = h('p', { class: 'note', role: 'status' }), linkSt = h('p', { class: 'note', role: 'status' });
+    const act = async (btn, fn, body, done, out = status) => {
+      btn.disabled = true;
+      const r = await LIVE.adminCall(fn, body);
+      if (r && r.ok) { if (done) done(r); await LIVE.refreshAdmin(); return r; }
+      btn.disabled = false;
+      out.textContent = keyWhy(r);
+      if (r && r.reason === 'gone') LIVE.refreshAdmin();
+      return r;
+    };
+
+    // (가) 대기 신청
+    const wait = keys.filter((k) => k.state === 'pending');
+    const waitList = h('ul', { class: 'adm-keys' }, wait.length ? wait.map((k) => {
+      const okB = h('button', { type: 'button', class: 'btn sm hot' }, '승인');
+      const noB = h('button', { type: 'button', class: 'btn sm out' }, '거절');
+      okB.addEventListener('click', () => act(okB, 'thug_key_set', { p_id: k.id, p_state: 'ok' }, () => app.toast(`승인했습니다 · ${ME.shown(k.name)}`)));
+      noB.addEventListener('click', () => act(noB, 'thug_key_set', { p_id: k.id, p_state: 'off' }, () => app.toast(`거절했습니다 · ${ME.shown(k.name)}`)));
+      const t = atOf(k.at);
+      return h('li', { class: 'adm-k' }, whoCell(app, k.name),
+        h('span', { class: 'adm-k-code', 'aria-label': `신청 번호 ${k.code || ''}` }, String(k.code || '----')),
+        h('span', { class: 'adm-k-b' }, h('span', { class: 'c-dim adm-m-s' }, t ? ago(t) : ''), okB, noB));
+    }) : [h('li', { class: 'empty' }, '대기 신청 없음')]);
+
+    // (나) 확인된 사람(사람별로 묶음)
+    const groups = new Map();
+    for (const k of keys.filter((x) => x.state === 'ok')) {
+      const n = String(k.name || '').toLowerCase();
+      const g = groups.get(n) || { name: n, n: 0, last: null };
+      g.n++;
+      const u = atOf(k.used) || atOf(k.at);
+      if (u != null && (g.last == null || u > g.last)) g.last = u;
+      groups.set(n, g);
+    }
+    const okRows = [...groups.values()].sort((a, b) => (b.last || 0) - (a.last || 0));
+    const looks = LIVE.club.looks || {};
+    const okList = h('ul', { class: 'adm-keys' }, okRows.length ? okRows.map((g) => {
+      const cut = h('button', { type: 'button', class: 'btn sm out' }, '모두 끊기');
+      cut.addEventListener('click', () => {
+        if (!ask(`${ME.shown(g.name)}의 본인 확인을 모든 기기에서 끊을까요?`)) return;
+        act(cut, 'thug_key_off_name', { p_name: g.name }, (r) => app.toast(`끊었습니다 · ${ME.shown(g.name)}${r && r.n ? ` (기기 ${r.n}개)` : ''}`), okSt);
+      });
+      const hasLook = !!looks[g.name];
+      const clr = h('button', { type: 'button', class: 'btn sm', disabled: !hasLook, title: hasLook ? null : '올린 꾸미기 없음' }, '꾸미기·대사 지우기');
+      clr.addEventListener('click', async () => {
+        if (!ask(`${ME.shown(g.name)}이(가) 올린 꾸미기와 대사를 지울까요? 모두에게 처음 모습으로 보입니다.`)) return;
+        clr.disabled = true;
+        const r = await LIVE.adminCall('thug_look_clear', { p_name: g.name });
+        if (r && r.ok) { await LIVE.refreshClub(); app.toast(`꾸미기·대사를 지웠습니다 · ${ME.shown(g.name)}`); draw(); return; }
+        clr.disabled = false;
+        okSt.textContent = keyWhy(r);
+      });
+      return h('li', { class: 'adm-k' }, whoCell(app, g.name),
+        h('span', { class: 'c-dim adm-m-s' }, `기기 ${g.n}개${g.last ? ` · ${ago(g.last)}` : ''}`),
+        h('span', { class: 'adm-k-b' }, cut, clr));
+    }) : [h('li', { class: 'empty' }, '확인된 사람 없음')]);
+
+    // 거절·끊음(최근 30일): 잘못 누른 것을 되돌릴 수 있게 접어 둠
+    const gone = keys.filter((k) => k.state === 'off');
+    const goneBox = gone.length ? h('details', { class: 'adm-gone' }, h('summary', null, `거절·끊음 ${gone.length}건(최근 30일)`),
+      h('ul', { class: 'adm-keys' }, gone.map((k) => {
+        const back = h('button', { type: 'button', class: 'btn sm' }, '다시 승인');
+        back.addEventListener('click', () => {
+          if (!ask(`${ME.shown(k.name)}의 이 기기를 다시 승인할까요?`)) return;
+          act(back, 'thug_key_set', { p_id: k.id, p_state: 'ok' }, () => app.toast(`다시 승인했습니다 · ${ME.shown(k.name)}`), okSt);
+        });
+        const t = atOf(k.at);
+        return h('li', { class: 'adm-k' }, whoCell(app, k.name),
+          h('span', { class: 'c-dim adm-m-s' }, `${k.via === 'link' ? '링크' : '신청'}${k.code ? ' ' + k.code : ''}${t ? ' · ' + ago(t) : ''}`),
+          h('span', { class: 'adm-k-b' }, back));
+      }))) : null;
+
+    // (다) 개인 링크 만들기
+    const pk = ME.picker({ id: 'admKeyPick', label: '링크를 받을 아이디' });
+    const slot = h('div');
+    if (st.issued) slot.append(h('p', { class: 'me-who' }, h('span', { class: 'nm' }, `${ME.shown(st.issued.name)} 님의 링크`)),
+      ME.linkBox(app, st.issued.link, '이 링크는 그 사람에게만 보내 주세요(다시 볼 수 없음)'));
+    const make = h('button', { type: 'button', class: 'btn hot' }, '링크 만들기');
+    make.addEventListener('click', async () => {
+      const p = pk.get();
+      if (!p) { linkSt.textContent = '링크를 받을 아이디를 골라 주세요.'; return; }
+      make.disabled = true;
+      const r = await LIVE.adminCall('thug_key_issue', { p_name: p.name });
+      make.disabled = false;
+      if (r && r.ok && r.key) {
+        st.issued = { name: r.name || p.name, link: LIVE.linkOf(r.key) };
+        await LIVE.refreshAdmin(); // thug:admindata → 다시 그림(링크는 st.issued에 남음)
+        if (!LIVE.adminData) draw();
+        return;
+      }
+      linkSt.textContent = keyWhy(r);
+    });
+
+    return [
+      pnl('본인 확인 신청', { flush: true, right: h('span', { class: 'pnl-sub' }, `대기 ${wait.length}`) },
+        h('p', { class: 'adm-help' }, '카톡방에 본인이 올린 번호와 같은지 보고 승인'),
+        h('div', { class: 'adm-tools' }, h('button', { type: 'button', class: 'btn sm', onclick: () => LIVE.refreshAdmin().then((ok) => { if (!ok) app.toast('연결이 안 됩니다. 잠시 뒤 다시 해 주세요.'); }) }, '새로 받기')),
+        waitList, h('div', { class: 'adm-st adm-k-st' }, status)),
+      pnl('확인된 사람', { flush: true, right: h('span', { class: 'pnl-sub' }, `${okRows.length}명`) }, okList, goneBox, h('div', { class: 'adm-st adm-k-st' }, okSt)),
+      pnl('개인 링크 만들기', {},
+        h('label', { class: 'lbl', for: 'admKeyPickQ' }, '링크를 받을 아이디'), pk.el,
+        h('div', { class: 'btns' }, make), linkSt, slot),
+    ];
+  }
+  const ask = (q) => { try { return window.confirm(q); } catch { return true; } };
 
   // ① 운영진 들어가기·나가기
   function enterPanel(app, admin, draw) {
@@ -3978,7 +4605,7 @@ const AD = (() => {
     const m = DB.S.meta;
     const hrs = Math.floor((Date.now() - DB.NOW) / 3600e3);
     const late = hrs >= 48;
-    return pnl('기록 수집', { right: h('span', { class: 'pnl-sub' + (late ? ' l' : '') }, late ? `${Math.floor(hrs / 24)}일 멈춤` : '날마다 9시') },
+    return pnl('기록 수집', { right: h('span', { class: 'pnl-sub' + (late ? ' l' : '') }, late ? `${Math.floor(hrs / 24)}일 멈춤` : '날마다 9시·21시') },
       h('dl', { class: 'facts' },
         h('dt', null, '마지막 수집'), h('dd', null, fmt.when(DB.NOW), h('span', { class: 'c-dim' }, hrs < 1 ? ' · 1시간 안' : hrs < 48 ? ` · ${hrs}시간 전` : ` · ${Math.floor(hrs / 24)}일 전`)),
         LIVE.builtAt ? [h('dt', null, '창고에 올림'), h('dd', null, fmt.when(Date.parse(LIVE.builtAt)))] : null,
@@ -3992,12 +4619,30 @@ const AD = (() => {
     const people = DB.persons.slice().sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
     const known = new Set(people.flatMap((p) => [p.name, ...(p.aliases || [])].map((x) => String(x).toLowerCase())));
     const extra = Object.entries(CL.members()).filter(([k]) => !known.has(k)).map(([k, v]) => ({ key: k, name: k, extra: true, set: v }));
-    const cur = (p) => {
-      if (st.dirty.has(p.key || p.id)) return st.dirty.get(p.key || p.id);
-      const v = p.extra ? p.set : CL.member(p);
-      return { cls: (v && v.cls) || 'member', grade: v && Number.isInteger(v.grade) ? v.grade : null, note: (v && v.note) || '' };
+    // 메모: 0003 창고는 운영진 자료(LIVE.adminData.notes)에서, 그 전 창고는 클랜 기록(members의 note)에서
+    const v3 = LIVE.has3();
+    const noteOk = !v3 || !!LIVE.adminData; // 0003인데 운영진 자료를 아직 못 받았으면 메모 칸을 막음(빈 메모로 덮지 않게)
+    const noteOf = (p, v) => {
+      if (!v3) return (v && v.note) || '';
+      const notes = LIVE.adminData && LIVE.adminData.notes; // 저장하면 바뀌므로 늘 지금 값을 읽음
+      if (!notes) return '';
+      for (const a of p.extra ? [p.key] : [p.name, ...(p.aliases || [])]) { const t = notes[String(a).toLowerCase()]; if (typeof t === 'string' && t) return t; }
+      return '';
     };
-    const base = (p) => { const v = p.extra ? p.set : CL.member(p); return { cls: (v && v.cls) || 'member', grade: v && Number.isInteger(v.grade) ? v.grade : null, note: (v && v.note) || '' }; };
+    const base = (p) => { const v = p.extra ? p.set : CL.member(p); return { cls: (v && v.cls) || 'member', grade: v && Number.isInteger(v.grade) ? v.grade : null, note: noteOf(p, v) }; };
+    const cur = (p) => (st.dirty.has(p.key || p.id) ? st.dirty.get(p.key || p.id) : base(p));
+    // 저장: 0003 창고는 thug_member_set(메모 그대로, 빈 글 = 지움), 그 전이거나 메모를 못 받았으면 thug_member_put(빈 메모는 있던 메모를 둠)
+    const putMember = async (name, cls, grade, note) => {
+      const useSet = v3 && noteOk;
+      const r = await LIVE.adminCall(useSet ? 'thug_member_set' : 'thug_member_put', { p_name: name, p_cls: cls, p_grade: grade, p_note: note });
+      if (r && r.ok && useSet && LIVE.adminData) {
+        const n = String(name).toLowerCase();
+        const nn = { ...(LIVE.adminData.notes || {}) };
+        if (note) nn[n] = note; else delete nn[n];
+        LIVE.adminData.notes = nn;
+      }
+      return r;
+    };
     const same = (a, b) => a.cls === b.cls && a.grade === b.grade && a.note.trim() === b.note.trim();
 
     const counts = { all: people.length + extra.length, member: 0, tester: 0, friend: 0, wait: 0, extra: extra.length, set: 0 };
@@ -4039,11 +4684,11 @@ const AD = (() => {
         h('option', { value: '', selected: v.grade == null }, auto),
         [1, 2, 3, 4, 5, 6].map((g) => h('option', { value: String(g), selected: v.grade === g }, `${g} ${GN[g]}`)));
       grade.addEventListener('change', () => { v.grade = grade.value ? +grade.value : null; mark(); });
-      const note = h('input', { type: 'text', class: 'field sm', maxlength: '100', value: v.note, placeholder: '메모', 'aria-label': `${p.name} 메모` });
+      const note = h('input', { type: 'text', class: 'field sm', maxlength: '100', value: v.note, placeholder: noteOk ? '메모' : '메모(받는 중)', disabled: !noteOk, 'aria-label': `${p.name} 메모` });
       note.addEventListener('input', () => { v.note = note.value; mark(); });
       save.addEventListener('click', async () => {
         save.disabled = true; save.textContent = '저장하는 중';
-        const r = await LIVE.adminCall('thug_member_put', { p_name: p.extra ? p.name : p.name, p_cls: v.cls, p_grade: v.grade, p_note: v.note.trim() });
+        const r = await putMember(p.name, v.cls, v.grade, noteOk ? v.note.trim() : '');
         save.textContent = '저장';
         if (r && r.ok) {
           st.dirty.delete(key);
@@ -4077,7 +4722,7 @@ const AD = (() => {
       if (!n) { status.textContent = '더할 아이디를 넣어 주세요.'; addName.focus(); return; }
       if (known.has(n.toLowerCase()) || CL.members()[n.toLowerCase()]) { status.textContent = '이미 목록에 있는 아이디입니다. 목록에서 구분을 바꿔 주세요.'; return; }
       addBtn.disabled = true;
-      const r = await LIVE.adminCall('thug_member_put', { p_name: n, p_cls: addCls.value, p_grade: null, p_note: addCls.value === 'member' ? '더한 아이디' : '' });
+      const r = await putMember(n, addCls.value, null, addCls.value === 'member' ? '더한 아이디' : '');
       addBtn.disabled = false;
       if (r && r.ok) { await LIVE.refreshClub(); app.toast(`${n} 아이디를 더했습니다.`); draw(); return; }
       status.textContent = why(r);
@@ -4136,7 +4781,9 @@ const AD = (() => {
 })();
 
 /* THUG 클랜 — 클랜전 기록실(#war, #war--id)과 운영진 입력(#war-edit, #war-edit--id).
-   읽기는 CL(club.js), 쓰기는 창고 thug_war_put(운영진 통행증). 저장 모양은 club.js 머리 주석 */
+   읽기는 CL(club.js), 쓰기는 창고(운영진 통행증). 저장 모양은 club.js 머리 주석.
+   창고 0003(LIVE.has3())이면 thug_war_save(판 번호 p_ver로 두 운영진이 동시에 고친 것을 알아챔)·thug_war_restore(되살리기),
+   그 전 창고면 지금처럼 thug_war_put */
 const WR = (() => {
   const RES = { w: '승', l: '패', d: '무' };
   const RES_C = { w: 'w', l: 'l', d: 'c-dim' };
@@ -4154,9 +4801,12 @@ const WR = (() => {
   const lN = (n) => h('span', { class: n ? 'l' : 'c-dim' }, `${n}패`);
   const cardBtn = (app, w) => (typeof CD !== 'undefined' && CD.open ? h('button', { type: 'button', class: 'btn sm', onclick: (e) => CD.open('war', w, app, e.currentTarget) }, '전적 카드') : null);
   const failMsg = (r) => (!r ? '연결이 안 됩니다. 잠시 뒤 다시 해 주세요.'
-    : r.reason === 'admin' ? '운영진 통행증이 끝났습니다. 운영진 화면에서 다시 들어와 주세요.'
+    : r.reason === 'admin' ? '운영진 입장이 끝났습니다. 운영진 화면에서 다시 들어와 주세요.'
       : r.reason === 'data' ? '날짜나 내용이 맞지 않아 저장하지 못했습니다.'
-        : '저장하지 못했습니다.');
+        : r.reason === 'gone' ? '지워진 클랜전입니다(기록실의 지운 클랜전에서 되살리기).'
+          : r.reason === 'conflict' ? '다른 운영진이 먼저 고쳤습니다. 화면을 새로 불러온 뒤 다시 해 주세요.'
+            : '저장하지 못했습니다.');
+  const v3 = () => !!(LIVE && typeof LIVE.has3 === 'function' && LIVE.has3());
 
   // 저장한 뒤 화면이 바로 새 기록을 쓰게: 창고에서 다시 받고, 안 되면 이 기기 사본만 고침
   async function afterWrite(id, row) {
@@ -4164,6 +4814,61 @@ const WR = (() => {
     const rest = (LIVE.club.wars || []).filter((x) => x.id !== id);
     LIVE.club = { ...LIVE.club, wars: row ? [row, ...rest] : rest };
     window.dispatchEvent(new Event('thug:club'));
+  }
+
+  // 지운 직후 기록실 위에 [되돌리기](5분). { id, label, at }
+  let undo = null;
+  async function restore(app, id, label) {
+    const r = await LIVE.adminCall('thug_war_restore', { p_id: id });
+    if (r && r.ok) {
+      if (undo && undo.id === id) undo = null;
+      await LIVE.refreshClub();
+      LIVE.refreshAdmin();
+      app.toast(`되살렸습니다 · ${label}`);
+      return true;
+    }
+    app.toast(failMsg(r));
+    return false;
+  }
+  function undoBar(app) {
+    if (!undo || Date.now() - undo.at > 5 * 60e3 || !canEdit() || !v3()) return null;
+    const u = undo;
+    const b = h('button', { type: 'button', class: 'btn sm', onclick: async () => { b.disabled = true; if (!(await restore(app, u.id, u.label))) b.disabled = false; } }, '되돌리기');
+    return h('div', { class: 'cw-undo', role: 'status' }, h('span', null, `지웠습니다 · ${u.label}`), b,
+      h('button', { type: 'button', class: 'btn sm out', onclick: (e) => { undo = null; e.currentTarget.closest('.cw-undo').remove(); } }, '닫기'));
+  }
+  const warLabel = (w) => `${fmt.date(w.on)} ${w.opp}전`;
+
+  // 지운 클랜전(운영진·0003): 접힌 목록 + 줄마다 [되살리기]. 운영진 자료가 새로 오면 스스로 다시 그림
+  function goneBox(app) {
+    if (!canEdit() || !v3()) return null;
+    const box = h('details', { class: 'cw-gone' });
+    let open = false;
+    box.addEventListener('toggle', () => { open = box.open; });
+    const draw = () => {
+      const ad = LIVE.adminData;
+      const list = ad && Array.isArray(ad.wars_gone) ? ad.wars_gone.map((x) => ({ x, w: CL.normWar(x) })).filter((e) => e.w) : [];
+      box.replaceChildren(
+        h('summary', null, ad ? `지운 클랜전 ${list.length}` : '지운 클랜전(받는 중)'),
+        ad ? h('ul', { class: 'cw-gl' }, list.length ? list.map(({ x, w }) => {
+          const b = h('button', { type: 'button', class: 'btn sm' }, '되살리기');
+          b.addEventListener('click', async () => { b.disabled = true; if (!(await restore(app, w.id, warLabel(w)))) b.disabled = false; });
+          const t = Date.parse(x.at || '');
+          return h('li', { class: 'cw-g' },
+            h('span', { class: 'cw-d c-dim' }, fmt.date(w.on)),
+            h('span', { class: 'cw-o' }, `vs ${w.opp}`),
+            h('span', { class: 'cw-s' }, `${w.our}:${w.their}`, ' ', resTag(w.result)),
+            h('span', { class: 'cw-m c-dim' }, Number.isNaN(t) ? '' : `${fmt.when(t)} 지움`),
+            b);
+        }) : [h('li', { class: 'empty' }, '지운 클랜전 없음')]) : null);
+      box.open = open;
+    };
+    draw();
+    const on = () => { if (box.isConnected) draw(); };
+    window.addEventListener('thug:admindata', on);
+    app.onLeave(() => window.removeEventListener('thug:admindata', on));
+    if (!LIVE.adminData) LIVE.refreshAdmin();
+    return box;
   }
 
   // ================= 기록실 =================
@@ -4181,10 +4886,12 @@ const WR = (() => {
     out.push(h('div', { class: 'cw-bar' },
       canEdit() ? h('a', { class: 'btn hot', href: '#war-edit' }, '클랜전 넣기')
         : h('p', { class: 'note' }, '클랜전은 운영진이 넣습니다. ', h('a', { class: 'plink', href: '#admin' }, '운영진 화면'))));
+    out.push(undoBar(app));
     if (!wars.length) {
       const cw = DB.S.clanWar;
       out.push(pnl('기록', {}, h('p', { class: 'empty' }, '아직 넣은 클랜전이 없습니다.'),
         cw && cw.w + cw.l ? h('p', { class: 'note' }, `그전에 따로 적어 둔 전적은 ${cw.w}승 ${cw.l}패입니다. 첫 클랜전을 넣으면 채널의 클랜 정보도 기록실 전적으로 바뀝니다.`) : null));
+      out.push(goneBox(app));
       return h('div', { class: 'page cw' }, ...out);
     }
     const t = CL.totals();
@@ -4222,6 +4929,7 @@ const WR = (() => {
         h('span', { class: 'cw-s' }, h('b', { class: w.result === 'w' ? 'gold' : '' }, String(w.our)), h('span', { class: 'c-dim' }, ' : '), h('b', null, String(w.their))),
         resTag(w.result),
         h('span', { class: 'cw-m c-dim' }, w.sets.length ? w.sets.map((s) => s.p ? s.p.short : s.name).join(' · ') : '세트 기록 없음')))))));
+    out.push(goneBox(app));
     return h('div', { class: 'page cw' }, ...out);
   }
 
@@ -4237,9 +4945,18 @@ const WR = (() => {
         h('div', { class: 'btns' },
           h('button', { type: 'button', class: 'btn hot sm', onclick: async () => {
             msg.textContent = '지우는 중입니다.';
-            const r = await LIVE.adminCall('thug_war_put', { p_id: w.id, p_on: null, p_data: null });
-            if (r && r.ok) { await afterWrite(w.id, null); app.toast('클랜전 기록을 지웠습니다.'); location.hash = '#war'; }
-            else msg.textContent = failMsg(r);
+            const r = v3()
+              ? await LIVE.adminCall('thug_war_save', { p_id: w.id, p_on: null, p_data: null, p_ver: w.ver })
+              : await LIVE.adminCall('thug_war_put', { p_id: w.id, p_on: null, p_data: null });
+            if (r && r.ok) {
+              if (v3()) { undo = { id: w.id, label: warLabel(w), at: Date.now() }; LIVE.refreshAdmin(); }
+              await afterWrite(w.id, null);
+              app.toast('클랜전 기록을 지웠습니다.');
+              location.hash = '#war';
+            } else {
+              msg.textContent = failMsg(r);
+              if (r && (r.reason === 'conflict' || r.reason === 'gone')) LIVE.refreshClub();
+            }
           } }, '지우기'),
           h('button', { type: 'button', class: 'btn sm', onclick: () => { del.hidden = true; } }, '그만두기')));
     };
@@ -4380,6 +5097,35 @@ const WR = (() => {
     drawSets();
 
     const save = h('button', { type: 'submit', class: 'btn hot' }, '저장');
+    // 0003 창고: 읽어 온 판 번호(새 클랜전은 0). 다른 운영진이 먼저 고치면 conflict → 최신본 불러오기·덮어쓰기
+    let ver = old ? old.ver : 0;
+    let wid = id || null;
+    const conf = h('div', { class: 'cw-conf', role: 'alert', hidden: true });
+    const loadLatest = (r) => {
+      const n = CL.normWar({ id: wid, on: r.on, data: r.data });
+      if (!n) return false;
+      st.on = n.on; st.opp = n.opp; st.our = n.our; st.their = n.their; st.note = n.note;
+      st.sets = n.sets.map((s) => ({ oid: s.p ? s.p.id : null, name: s.name, their: s.their, map: s.map, win: s.win, typed: !s.p }));
+      onIn.value = st.on; oppIn.value = st.opp; noteIn.value = st.note;
+      drawSets();
+      return true;
+    };
+    const showConflict = (r) => {
+      const n = CL.normWar({ id: wid, on: r.on, data: r.data });
+      const loadB = h('button', { type: 'button', class: 'btn sm' }, '최신본 불러오기');
+      const mineB = h('button', { type: 'button', class: 'btn sm hot' }, '내 내용으로 덮어쓰기');
+      loadB.addEventListener('click', () => {
+        ver = r.ver;
+        if (loadLatest(r)) { conf.hidden = true; msg.textContent = '최신본을 불러왔습니다(고친 뒤 다시 저장).'; }
+      });
+      mineB.addEventListener('click', () => { ver = r.ver; conf.hidden = true; form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true })); });
+      conf.replaceChildren(
+        h('p', { class: 'cw-conf-h' }, r.deleted ? '다른 운영진이 먼저 지움' : '다른 운영진이 먼저 고침'),
+        n ? h('p', { class: 'note' }, `최신본: ${fmt.date(n.on)} vs ${n.opp} · ${n.our}:${n.their} ${RES[n.result]}${n.sets.length ? ` · 세트 ${n.sets.length}개` : ''}${r.deleted ? '(지운 상태, 덮어쓰면 되살아남)' : ''}`) : null,
+        h('div', { class: 'btns' }, r.deleted ? null : loadB, mineB));
+      conf.hidden = false;
+      msg.textContent = '';
+    };
     const form = h('form', { class: 'cw-form', autocomplete: 'off', novalidate: true },
       dlOpp, dlMap,
       h('div', { class: 'cw-top' },
@@ -4387,7 +5133,7 @@ const WR = (() => {
         h('div', null, h('label', { class: 'lbl', for: 'cw-opp' }, '상대 클랜'), oppIn)),
       h('p', { class: 'lbl' }, '세트'), setBox, scoreBox, sum,
       h('label', { class: 'lbl', for: 'cw-note' }, '메모'), noteIn,
-      msg,
+      conf, msg,
       h('div', { class: 'btns' }, save, h('a', { class: 'btn', href: id ? '#war--' + id : '#war' }, '그만두기')));
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -4398,22 +5144,26 @@ const WR = (() => {
       if (bad >= 0) { msg.textContent = `${bad + 1}세트의 우리 선수와 승패를 넣어 주세요.`; return; }
       const { our, their } = nums();
       if (!st.sets.length && our + their === 0) { msg.textContent = '세트를 넣거나 점수를 넣어 주세요.'; return; }
-      const wid = id || newId();
+      if (!wid) wid = newId();
       const data = {
         v: 1, opp, our, their, result: our > their ? 'w' : our < their ? 'l' : 'd',
         sets: st.sets.map((s) => ({ our: s.name.trim(), oid: s.oid || null, their: s.their.trim(), map: s.map.trim(), win: !!s.win })),
         note: st.note.trim(),
       };
       msg.textContent = '';
+      conf.hidden = true;
       save.disabled = true; save.textContent = '저장하는 중';
-      const r = await LIVE.adminCall('thug_war_put', { p_id: wid, p_on: st.on, p_data: data });
+      const r = v3()
+        ? await LIVE.adminCall('thug_war_save', { p_id: wid, p_on: st.on, p_data: data, p_ver: ver })
+        : await LIVE.adminCall('thug_war_put', { p_id: wid, p_on: st.on, p_data: data });
       if (r && r.ok) {
-        await afterWrite(wid, { id: wid, on: st.on, data });
+        await afterWrite(wid, { id: wid, on: st.on, ver: r.ver || ver + 1, data });
         app.toast(id ? '클랜전을 고쳤습니다.' : '클랜전을 넣었습니다. 클랜원 모두에게 보입니다.');
         location.hash = '#war--' + wid;
         return;
       }
       save.disabled = false; save.textContent = '저장';
+      if (r && r.reason === 'conflict') { showConflict(r); return; }
       msg.textContent = failMsg(r);
     });
     return h('div', { class: 'page cw' }, pageTitle(title, '운영진만 넣고 고칩니다. 저장하면 클랜원 모두에게 보입니다.'),
@@ -8122,7 +8872,7 @@ const TT = (() => {
         h('button', { type: 'button', class: 'tt-x', 'aria-label': `${t.k} 설명 닫기` }, '닫기')),
       h('dl', { class: 'tt-dl' },
         row('뜻', t.d),
-        row('조건', t.hand ? '클랜 마스터가 직접 줌' : t.rule),
+        row('조건', t.hand ? '운영진이 직접 줌' : t.rule),
         row('이 사람', t.why),
         row('같이 받은 사람', others.length
           ? h('span', { class: 'tt-with' }, others.slice(0, SHOW).map((o) => plink(app, o)), others.length > SHOW ? h('span', { class: 'c-dim' }, `외 ${others.length - SHOW}명`) : null)
@@ -8285,6 +9035,446 @@ const TT = (() => {
   return { refresh, chips, short, shortText, view };
 })();
 
+/* THUG 클랜 — 방명록·채팅(전역 PO). 채널의 '소식' 칸에 경기 소식과 함께 보이는 사람이 쓴 글.
+   창고가 0003까지 적용됐을 때만 켜짐(PO.on()). 읽기는 입장한 사람 모두, 쓰기는 본인 확인된 사람만.
+   글 한 줄 = { id, n: 이름소문자, b: 글, t: 쓴 때(ISO) }. 이 기기 저장 'thug.posts'(최근 150개).
+   새 글 받기: 채널을 보는 동안 20초마다(10분 동안 새 글이 없으면 60초), 화면이 가려지면 멈춤. 묶는 순서는 main.js 바로 앞 */
+const PO = (() => {
+  const KEY = 'thug.posts', MAX = 150, FAST = 20e3, SLOW = 60e3, QUIET = 10 * 60e3;
+  const NET = '연결이 안 됩니다. 잠시 뒤 다시 해 주세요.';
+  const SEND_MSG = {
+    len: '글은 200자까지입니다.',
+    fast: '조금 뒤에 다시 보내 주세요.',
+    same: '방금 같은 글을 올렸습니다.',
+    key: '본인 확인이 풀렸습니다.',
+    pass: '입장 기록이 끝났습니다. 다시 들어와 주세요.',
+  };
+  const DEL_MSG = { key: '본인 확인이 풀렸습니다.', admin: '운영진 입장이 끝났습니다.', mine: '내 글만 지울 수 있습니다.', pass: SEND_MSG.pass };
+
+  const on = () => { try { return !!(LIVE && typeof LIVE.has3 === 'function' && LIVE.has3()); } catch { return false; } };
+  const hasME = () => typeof ME !== 'undefined' && ME && typeof ME.state === 'function';
+  const meName = () => (hasME() && ME.state() === 'ok' && ME.nameLc ? ME.nameLc() : null);
+
+  const norm = (x) => {
+    if (!x || typeof x !== 'object') return null;
+    const id = Math.floor(+x.id);
+    const n = typeof x.n === 'string' ? x.n.trim().toLowerCase().slice(0, 40) : '';
+    const b = typeof x.b === 'string' ? x.b.slice(0, 400) : '';
+    if (!(id > 0) || !n || !b) return null;
+    return { id, n, b, t: typeof x.t === 'string' ? x.t : '' };
+  };
+  const tidy = (arr) => {
+    const m = new Map();
+    for (const x of arr) { const p = norm(x); if (p) m.set(p.id, p); }
+    return [...m.values()].sort((a, b) => a.id - b.id).slice(-MAX);
+  };
+  const saved = store.get(KEY, null);
+  let posts = tidy(Array.isArray(saved) ? saved : []);
+  let fresh = false; // 이번에 쪽을 연 뒤 최근 150개를 한 번 받았는가(그 뒤로는 마지막 번호 뒤만)
+  let last = 0, tm = null, busy = null, lastNew = Date.now(), lastPull = 0;
+  const subs = new Set();
+
+  const save = () => { if (!store.set(KEY, posts)) store.del(KEY); };
+  const emit = (chg) => { for (const fn of [...subs]) { try { fn(chg); } catch (e) { console.error(e); } } };
+  // 받은 글을 합침. full이면 받은 목록으로 바꿈. del에 든 번호는 뺌
+  function apply(list, del, full) {
+    const before = new Set(posts.map((p) => p.id));
+    let next = full ? tidy(list) : tidy([...posts, ...list]);
+    const gone = new Set((Array.isArray(del) ? del : []).map((x) => Math.floor(+x)));
+    if (gone.size) next = next.filter((p) => !gone.has(p.id));
+    const now = new Set(next.map((p) => p.id));
+    const added = next.filter((p) => !before.has(p.id));
+    const removed = posts.filter((p) => !now.has(p.id));
+    posts = next;
+    if (added.length || removed.length || full) save();
+    return { added, removed };
+  }
+
+  function pull() {
+    if (busy) return busy;
+    busy = (async () => {
+      if (!on() || LIVE.offline) return;
+      const tok = typeof LIVE.token === 'function' ? LIVE.token() : null;
+      if (!tok) return;
+      lastPull = Date.now();
+      let r = null;
+      try { r = await LIVE.call('thug_posts', { p_token: tok, p_after: fresh ? last : 0 }); } catch { r = null; }
+      if (!r || !r.ok || !Array.isArray(r.posts)) return;
+      const full = !fresh;
+      fresh = true;
+      const top = r.posts.reduce((m, x) => Math.max(m, Math.floor(+(x && x.id)) || 0), 0);
+      // 받은 글이 있으면 그 가운데 가장 큰 번호까지(한 번에 300개로 끊겨도 다음에 이어 받음)
+      last = top ? Math.max(full ? 0 : last, top) : Math.max(full ? 0 : last, Math.floor(+r.last) || 0);
+      const ch = apply(r.posts, r.del, full);
+      if (ch.added.length) lastNew = Date.now();
+      if (ch.added.length || ch.removed.length) emit(ch);
+    })().finally(() => { busy = null; });
+    return busy;
+  }
+  function schedule() {
+    clearTimeout(tm); tm = null;
+    if (!subs.size || document.visibilityState === 'hidden') return;
+    tm = setTimeout(() => { pull().then(schedule); }, Date.now() - lastNew > QUIET ? SLOW : FAST);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!subs.size) return;
+    if (document.visibilityState === 'hidden') { clearTimeout(tm); tm = null; return; }
+    lastNew = Date.now();
+    pull().then(schedule);
+  });
+  window.addEventListener('thug:net', () => { if (subs.size && LIVE && !LIVE.offline) pull().then(schedule); });
+
+  // 채널을 보는 동안 새 글 받기. fn({ added, removed, mine? })는 목록이 바뀔 때마다. 화면을 떠나면 멈춤
+  function watch(app, fn) {
+    if (!on()) return;
+    subs.add(fn);
+    lastNew = Date.now();
+    app.onLeave(() => { subs.delete(fn); if (!subs.size) { clearTimeout(tm); tm = null; } });
+    // 같은 채널을 다시 그릴 때(본인 확인·클랜 기록이 바뀜) 곧바로 또 받지 않음
+    if (!fresh || Date.now() - lastPull > 3000) pull().then(schedule); else schedule();
+  }
+
+  const list = () => (on() ? posts.slice() : []);
+  const time = (p) => { const t = Date.parse(p.t); return Number.isFinite(t) ? t : Date.now(); };
+  const isMine = (p) => { const n = meName(); return !!n && p.n === n; };
+  const isAdmin = () => { try { return !!(LIVE && LIVE.isAdmin()); } catch { return false; } };
+  const canDel = (p) => on() && (isMine(p) || isAdmin());
+
+  async function send(text) {
+    const b = String(text == null ? '' : text).replace(/[\r\n\t]+/g, ' ').trim();
+    if (!b) return { ok: false, reason: 'empty' };
+    if ([...b].length > 200) return { ok: false, reason: 'len' };
+    if (!on() || typeof LIVE.meCall !== 'function') return null;
+    let r = null;
+    try { r = await LIVE.meCall('thug_post_put', { p_body: b }); } catch { r = null; }
+    if (r && r.ok) {
+      const p = norm(r.post);
+      // 마지막 번호는 올리지 않음(그 사이 남이 쓴 글을 다음에 받도록). 같은 글은 번호로 하나만 남음
+      if (p) { const ch = apply([p], null, false); lastNew = Date.now(); emit({ ...ch, mine: true }); }
+    }
+    return r;
+  }
+
+  async function remove(p) {
+    let r = null;
+    try {
+      const mine = isMine(p);
+      if (mine && typeof LIVE.meCall === 'function') r = await LIVE.meCall('thug_post_unsay', { p_id: p.id });
+      // 운영진은 남의 글(또는 이름이 어긋난 내 글)을 운영진 함수로
+      if ((!mine || (r && r.ok === false && r.reason === 'mine')) && isAdmin()) r = await LIVE.adminCall('thug_post_del', { p_id: p.id });
+      else if (!mine && !isAdmin()) r = { ok: false, reason: 'mine' };
+    } catch { r = null; }
+    if (r && (r.ok || r.reason === 'gone')) { const ch = apply([], [p.id], false); if (ch.removed.length) emit(ch); }
+    return r;
+  }
+
+  // 입력 줄: 본인 확인됨 → 입력 칸 + 보내기, 아니면 본인 확인 안내 한 줄. 꺼져 있으면 null
+  function inputLine(app) {
+    if (!on()) return null;
+    if (!meName()) {
+      let g = null;
+      try { g = hasME() && ME.gateLine ? ME.gateLine(app, '글을 쓰려면') : null; } catch (e) { console.error(e); g = null; }
+      return g ? h('div', { class: 'po-in po-gate' }, g) : null;
+    }
+    const st = app.state;
+    const f = h('input', {
+      type: 'text', class: 'field po-f', maxlength: '200', placeholder: '글 남기기 (200자까지)', 'aria-label': '소식에 글 남기기 (200자까지)',
+      enterkeyhint: 'send', autocomplete: 'off', value: st.poDraft || '',
+    });
+    const b = h('button', { type: 'button', class: 'btn po-send' }, '보내기');
+    let sending = false;
+    const lock = (on1) => { sending = on1; b.disabled = on1; if (on1) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); };
+    const go = async () => {
+      if (sending) return;
+      if (!f.value.trim()) { f.focus(); return; }
+      lock(true);
+      const r = await send(f.value);
+      lock(false);
+      if (r && r.ok) { f.value = ''; st.poDraft = ''; if (f.isConnected) f.focus(); return; }
+      app.toast(!r ? NET : SEND_MSG[r.reason] || '보내지 못했습니다.');
+    };
+    // 한글을 조합하는 중의 Enter는 글자를 끝내는 키라 보내지 않음
+    f.addEventListener('keydown', (e) => { if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return; e.preventDefault(); go(); });
+    f.addEventListener('input', () => { st.poDraft = f.value; });
+    f.addEventListener('focus', () => { st.poFocus = true; });
+    f.addEventListener('blur', () => { st.poFocus = false; });
+    b.addEventListener('click', go);
+    // 채널이 다시 그려질 때 쓰던 칸에 커서를 돌려 둠
+    if (st.poFocus) app.onMount(() => { try { f.focus({ preventScroll: true }); const n = f.value.length; f.setSelectionRange(n, n); } catch { /* 옛 브라우저 */ } });
+    return h('div', { class: 'po-in' }, f, b);
+  }
+
+  // 지우기 단추(내 글이거나 운영진일 때만)
+  function delBtn(app, p) {
+    if (!canDel(p)) return null;
+    const b = h('button', { type: 'button', class: 'c-del', 'aria-label': '이 글 지우기' }, '지우기');
+    b.addEventListener('click', async () => {
+      let ok = true;
+      try { ok = window.confirm('이 글을 지울까요?'); } catch { ok = true; }
+      if (!ok) return;
+      b.disabled = true;
+      const r = await remove(p);
+      if (b.isConnected) b.disabled = false;
+      if (!(r && (r.ok || r.reason === 'gone'))) app.toast(!r ? NET : DEL_MSG[r.reason] || '지우지 못했습니다.');
+    });
+    return b;
+  }
+
+  return { on, list, time, isMine, canDel, watch, pull, send, remove, inputLine, delBtn };
+})();
+
+/* THUG 클랜 — 운영진 화면의 '칭호' 구역(TA.panel). 클랜 마스터 결정(2026-11-25 밤): 운영 암호를 아는 운영진 모두가 고침.
+   특수 칭호: 만들기·주기·거두기·고치기·지우기. 자동 칭호: 이름·뜻 고치기, 끄기·켜기, 처음대로(고침 줄 지움). 조건 숫자는 model.js에 있음.
+   저장은 thug_title_put. 줄 모양 { k?, d?, off?, give?: [{ n: 이름소문자, why? }], take?: [이름소문자] }(docs/stage5_contract.md 3절).
+   저장 직전에 클랜 기록을 다시 받아 그 위에 바꾼 것만 얹음(다른 운영진이 방금 고친 것을 덮지 않게). 남은 칸이 없으면 줄을 지움.
+   admin.js가 LIVE.has3()일 때만 부름. 임시 사이트(LIVE 없음)에서는 불리지 않고, 불려도 안내 한 줄. 묶는 순서: main.js 바로 앞 */
+const TA = (() => {
+  // 다시 그려도 남는 상태. form: { kind: 'new'|'edit'|'give'|'auto', id?, k, d, why, q, pid }
+  const S = { g: '실력', q: '', form: null, busy: false, msg: '', msgAt: '' };
+  const pnl = (title, opt, ...kids) => h('section', { class: 'pnl' + (opt.cls ? ' ' + opt.cls : ''), 'aria-label': typeof title === 'string' ? title : opt.label },
+    h('div', { class: 'pnl-h' }, h('h2', null, title), opt.right ? h('div', { class: 'pnl-r' }, opt.right) : null),
+    h('div', { class: 'pnl-b' + (opt.flush ? ' flush' : '') }, ...kids));
+  const lc = (s) => String(s == null ? '' : s).toLowerCase();
+  const cutS = (s, n) => (typeof s === 'string' && s.trim() ? s.trim().slice(0, n) : '');
+  const byName = (a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
+  const ask = (q) => { try { return window.confirm(q); } catch { return true; } };
+  const why = (r) => (!r ? '연결이 안 됩니다. 잠시 뒤 다시 해 주세요.'
+    : r.reason === 'admin' ? '운영진 입장이 끝났습니다(위에서 다시 들어오기).'
+      : r.reason === 'size' ? '내용이 너무 깁니다.'
+        : r.reason === 'full' ? '칭호 줄이 가득 찼습니다(300개까지).'
+          : r.reason === 'id' ? '칭호 번호가 맞지 않습니다.'
+            : '저장하지 못했습니다.');
+
+  // 창고의 고침 줄(LIVE.club.titles)
+  const rows = () => (LIVE && LIVE.club && Array.isArray(LIVE.club.titles) ? LIVE.club.titles : []).filter((r) => r && typeof r.id === 'string' && r.id);
+  const rowOf = (id) => rows().find((r) => r.id === id) || null;
+  // give·take 한 칸 → 사람. 새 꼴 { n: 이름 }, 옛 꼴 사람 id 글자·{ id }
+  const keyOf = (g) => (typeof g === 'string' ? g : g && typeof g === 'object' ? g.n || g.id || '' : '');
+  const personOf = (g) => {
+    const k = keyOf(g);
+    if (!k) return null;
+    if (g && typeof g === 'object' && g.n) return CL.personByName(k) || DB.byId.get(k) || null;
+    return DB.byId.get(k) || CL.personByName(k) || null;
+  };
+  const sameOne = (g, p, raw) => { const q = personOf(g); return p && q ? q.id === p.id : lc(keyOf(g)) === lc(raw); };
+  // 저장할 줄: 빈 칸은 빼고, 아무것도 없으면 null(줄 지움)
+  const tidy = (r) => {
+    if (!r) return null;
+    const o = {};
+    if (cutS(r.k, 20)) o.k = cutS(r.k, 20);
+    if (cutS(r.d, 60)) o.d = cutS(r.d, 60);
+    if (r.off === true) o.off = true;
+    if (Array.isArray(r.give) && r.give.length) o.give = r.give;
+    if (Array.isArray(r.take) && r.take.length) o.take = r.take;
+    return Object.keys(o).length ? o : null;
+  };
+  const newId = () => {
+    const a = new Uint8Array(8);
+    try { crypto.getRandomValues(a); } catch { for (let i = 0; i < 8; i++) a[i] = Math.floor(Math.random() * 256); }
+    return 'sp-' + [...a].map((x) => 'abcdefghijklmnopqrstuvwxyz0123456789'[x % 36]).join('');
+  };
+
+  // 저장: 최신 줄을 다시 받고(change가 그 위에 바꿈) → thug_title_put → 다시 받기 → 다시 그림
+  async function save(app, redraw, at, id, change, done) {
+    if (S.busy) return;
+    S.busy = true; S.msg = '저장하는 중'; S.msgAt = at;
+    redraw();
+    await LIVE.refreshClub();
+    const cur = rowOf(id);
+    const base = cur ? { ...cur } : {};
+    delete base.id;
+    const data = tidy(change(base));
+    const r = await LIVE.adminCall('thug_title_put', { p_id: id, p_data: data });
+    S.busy = false;
+    if (r && r.ok) {
+      S.form = null; S.msg = '';
+      await LIVE.refreshClub();
+      if (typeof TT !== 'undefined') { try { TT.refresh(app); } catch (e) { console.error(e); } }
+      app.toast(done);
+    } else S.msg = why(r);
+    redraw();
+  }
+
+  const field = (label, key, max, ph) => {
+    const id = 'ta-' + key;
+    const f = h('input', { id, class: 'field sm', type: 'text', maxlength: String(max), placeholder: ph || '', autocomplete: 'off', value: S.form[key] || '' });
+    f.addEventListener('input', () => { S.form[key] = f.value; });
+    return h('div', { class: 'ta-fld' }, h('label', { class: 'lbl', for: id }, label), f);
+  };
+  const formBox = (kids, onOk, okText) => {
+    const ok = h('button', { type: 'submit', class: 'btn sm hot', disabled: S.busy }, okText);
+    const form = h('form', { class: 'ta-form', autocomplete: 'off', novalidate: true }, h('div', { class: 'ta-fs' }, kids),
+      h('div', { class: 'ta-fb' }, ok, h('button', { type: 'button', class: 'btn sm', onclick: () => { S.form = null; S.msg = ''; form.dispatchEvent(new CustomEvent('ta-close', { bubbles: true })); } }, '그만두기')));
+    form.addEventListener('submit', (e) => { e.preventDefault(); onOk(); });
+    return form;
+  };
+  const status = (at) => h('p', { class: 'note ta-st', role: 'status' }, S.msgAt === at ? S.msg : '');
+
+  // ---------- 특수 칭호 ----------
+  function specialPanel(app, redraw, autoIds) {
+    const list = rows().filter((r) => !autoIds.has(r.id) && cutS(r.k, 20)).sort((a, b) => cutS(a.k, 20).localeCompare(cutS(b.k, 20), 'ko'));
+    const top = S.form && S.form.kind === 'new'
+      ? h('div', { class: 'ta-tools' }, formBox([field('이름(20자)', 'k', 20, '예: 방송왕'), field('뜻(60자)', 'd', 60, '예: 클랜 방송을 가장 많이 켬')], () => {
+        const k = cutS(S.form.k, 20);
+        if (!k) { S.msg = '이름을 넣어 주세요.'; S.msgAt = 'sp'; redraw(); return; }
+        const d = cutS(S.form.d, 60);
+        save(app, redraw, 'sp', newId(), () => ({ k, d }), `특수 칭호를 만들었습니다 · ${k}`);
+      }, '만들기'))
+      : h('div', { class: 'ta-tools' }, h('button', { type: 'button', class: 'btn sm hot', disabled: S.busy, onclick: () => { S.form = { kind: 'new', k: '', d: '' }; S.msg = ''; redraw(); } }, '새 특수 칭호'));
+    const items = list.map((r) => specialItem(app, redraw, r));
+    return pnl('특수 칭호', { flush: true, right: h('span', { class: 'pnl-sub' }, `${list.length}개`) },
+      h('p', { class: 'adm-help' }, '운영진이 이름을 짓고 사람에게 줌(예: 방송왕, 분위기 메이커, 대회 MVP)'),
+      top,
+      h('ul', { class: 'ta-list' }, items.length ? items : [h('li', { class: 'empty' }, '특수 칭호 없음')]),
+      status('sp'));
+  }
+
+  function specialItem(app, redraw, r) {
+    const k = cutS(r.k, 20), d = cutS(r.d, 60);
+    const give = Array.isArray(r.give) ? r.give : [];
+    const f = S.form && S.form.id === r.id ? S.form : null;
+    const holders = give.map((g) => {
+      const p = personOf(g), raw = keyOf(g), w = cutS(g && g.why, 40);
+      const shown = p ? p.name : raw || '?';
+      const off = h('button', { type: 'button', class: 'btn sm out', disabled: S.busy, 'aria-label': `${shown}에게서 ${k} 거두기` }, '거두기');
+      off.addEventListener('click', () => {
+        if (!ask(`${shown}에게서 '${k}' 칭호를 거둘까요?`)) return;
+        save(app, redraw, 'sp', r.id, (b) => ({ ...b, give: (Array.isArray(b.give) ? b.give : []).filter((x) => !sameOne(x, p, raw)) }), `거뒀습니다 · ${shown}`);
+      });
+      return h('li', { class: 'ta-h' },
+        p ? h('a', { class: 'plink ta-hn', href: '#p--' + p.id }, app.icon(p, 16), h('span', null, p.name)) : h('span', { class: 'ta-hn' }, h('span', null, shown), h('span', { class: 'c-dim' }, '(명단에 없음)')),
+        w ? h('span', { class: 'ta-s' }, w) : null,
+        p && !p.ranked ? h('span', { class: 'ta-s' }, '(정식·테스터가 아니라 안 보임)') : null,
+        off);
+    });
+    const btn = (t, on, extra) => h('button', { type: 'button', class: 'btn sm' + (extra ? ' ' + extra : ''), disabled: S.busy, onclick: on }, t);
+    const li = h('li', { class: 'ta-row' + (f ? ' on' : '') },
+      h('div', { class: 'ta-main' },
+        h('div', { class: 'ta-top' }, h('span', { class: 'tt-tag' }, k), h('span', { class: 'ta-s' }, `받은 사람 ${give.length}명`)),
+        h('p', { class: 'ta-d' }, d || '운영진이 준 칭호'),
+        give.length ? h('ul', { class: 'ta-hold', 'aria-label': `${k} 받은 사람` }, holders) : null),
+      h('div', { class: 'ta-b' },
+        btn('주기', () => { S.form = { kind: 'give', id: r.id, q: '', pid: '', why: '' }; S.msg = ''; redraw(); }, 'hot'),
+        btn('고치기', () => { S.form = { kind: 'edit', id: r.id, k, d }; S.msg = ''; redraw(); }),
+        btn('지우기', () => {
+          if (!ask(`'${k}' 칭호를 지울까요? 받은 사람 모두에게서 빠집니다.`)) return;
+          save(app, redraw, 'sp', r.id, () => null, `특수 칭호를 지웠습니다 · ${k}`);
+        }, 'out')));
+    if (f && f.kind === 'edit') {
+      li.append(formBox([field('이름(20자)', 'k', 20), field('뜻(60자)', 'd', 60)], () => {
+        const nk = cutS(S.form.k, 20);
+        if (!nk) { S.msg = '이름을 넣어 주세요.'; S.msgAt = 'sp'; redraw(); return; }
+        const nd = cutS(S.form.d, 60);
+        save(app, redraw, 'sp', r.id, (b) => ({ ...b, k: nk, d: nd }), `고쳤습니다 · ${nk}`);
+      }, '저장'));
+    }
+    if (f && f.kind === 'give') li.append(giveForm(app, redraw, r, k));
+    return li;
+  }
+
+  // 주기: 정식·테스터 가운데 찾아 고름 + 까닭(안 적어도 됨)
+  function giveForm(app, redraw, r, k) {
+    const have = new Set((Array.isArray(r.give) ? r.give : []).map(personOf).filter(Boolean).map((p) => p.id));
+    const people = DB.persons.filter((p) => p.ranked && !have.has(p.id)).sort(byName);
+    const q = h('input', { id: 'ta-q', class: 'field sm', type: 'search', placeholder: '이름 찾기', autocomplete: 'off', maxlength: '40', value: S.form.q || '' });
+    const sel = h('select', { id: 'ta-pick', class: 'field sm', 'aria-label': '받을 사람' });
+    const fill = () => {
+      const t = lc(S.form.q).trim();
+      const list = people.filter((p) => !t || [p.name, ...(p.aliases || [])].some((a) => lc(a).includes(t)));
+      if (t && list.length && !list.some((p) => p.id === S.form.pid)) S.form.pid = list[0].id;
+      sel.replaceChildren(...(list.length
+        ? [list.some((p) => p.id === S.form.pid) ? null : h('option', { value: '' }, '받을 사람 고르기'), ...list.map((p) => h('option', { value: p.id, selected: p.id === S.form.pid }, p.name))]
+        : [h('option', { value: '' }, '맞는 사람 없음')]));
+      sel.value = list.some((p) => p.id === S.form.pid) ? S.form.pid : '';
+    };
+    q.addEventListener('input', () => { S.form.q = q.value; fill(); });
+    sel.addEventListener('change', () => { S.form.pid = sel.value; });
+    fill();
+    return formBox([
+      h('div', { class: 'ta-fld' }, h('label', { class: 'lbl', for: 'ta-q' }, '받을 사람(정식·테스터)'), h('div', { class: 'ta-pick' }, q, sel)),
+      field('까닭(40자, 안 적어도 됨)', 'why', 40, '예: 11월 방송 20번'),
+    ], () => {
+      const p = DB.byId.get(S.form.pid || sel.value);
+      if (!p) { S.msg = '받을 사람을 골라 주세요.'; S.msgAt = 'sp'; redraw(); return; }
+      const w = cutS(S.form.why, 40);
+      const one = w ? { n: lc(p.name), why: w } : { n: lc(p.name) };
+      save(app, redraw, 'sp', r.id, (b) => ({ ...b, give: [...(Array.isArray(b.give) ? b.give : []).filter((x) => !sameOne(x, p, p.name)), one] }), `주었습니다 · ${p.name} '${k}'`);
+    }, '주기');
+  }
+
+  // ---------- 자동 칭호 ----------
+  function autoPanel(app, redraw, autos) {
+    const fixed = new Set(rows().map((r) => r.id));
+    const groups = DB.TITLE_GROUPS.filter((g) => g !== '특수' && autos.some((t) => t.group === g));
+    const changed = autos.filter((t) => fixed.has(t.id));
+    const CH = [['all', '전체', autos.length], ['fixed', '고친 것', changed.length], ...groups.map((g) => [g, g, autos.filter((t) => t.group === g).length])];
+    if (!CH.some(([k]) => k === S.g)) S.g = groups[0] || 'all';
+    const list = h('ul', { class: 'ta-list' });
+    const chips = h('div', { class: 'chips tight', role: 'group', 'aria-label': '칭호 묶음' });
+    const draw = () => {
+      chips.replaceChildren(...CH.map(([k, t, n]) => h('button', { type: 'button', class: 'chip', 'aria-pressed': String(!S.q.trim() && S.g === k), onclick: () => { S.g = k; S.q = ''; q.value = ''; draw(); } }, `${t} ${n}`)));
+      const term = lc(S.q).trim();
+      const shown = autos.filter((t) => (term ? [t.k, t.k0, t.d].some((x) => lc(x).includes(term))
+        : S.g === 'all' || (S.g === 'fixed' ? fixed.has(t.id) : t.group === S.g)));
+      list.replaceChildren(...(shown.length ? shown.map((t) => autoItem(app, redraw, t, fixed.has(t.id))) : [h('li', { class: 'empty' }, '맞는 칭호 없음')]));
+    };
+    const q = h('input', { type: 'search', class: 'field sm', placeholder: '칭호 찾기', 'aria-label': '자동 칭호 찾기', value: S.q, autocomplete: 'off' });
+    q.addEventListener('input', () => { S.q = q.value; draw(); });
+    draw();
+    return pnl('자동 칭호', { flush: true, right: h('span', { class: 'pnl-sub' }, `${autos.length}개 · 고친 것 ${changed.length}`) },
+      h('p', { class: 'adm-help' }, '기록으로 저절로 주는 칭호. 이름·뜻 고치기와 끄기만(조건 숫자는 사이트에 정해져 있어 여기서 못 고침)'),
+      h('div', { class: 'ta-tools' }, q, chips),
+      list, status('auto'));
+  }
+
+  function autoItem(app, redraw, t, has) {
+    const f = S.form && S.form.kind === 'auto' && S.form.id === t.id ? S.form : null;
+    const btn = (txt, on, extra) => h('button', { type: 'button', class: 'btn sm' + (extra ? ' ' + extra : ''), disabled: S.busy, onclick: on }, txt);
+    const li = h('li', { class: 'ta-row' + (t.off ? ' ta-off' : '') + (f ? ' on' : '') },
+      h('div', { class: 'ta-main' },
+        h('div', { class: 'ta-top' },
+          h('span', { class: 'tt-tag' }, t.k),
+          t.off ? h('span', { class: 'ta-flag' }, '꺼짐') : null,
+          t.k !== t.k0 ? h('span', { class: 'ta-s' }, `원래 ${t.k0}`) : null,
+          h('span', { class: 'ta-s' }, `${t.group} · 받은 사람 ${t.holders.length}명`)),
+        h('p', { class: 'ta-d' }, t.d),
+        t.d !== t.d0 ? h('p', { class: 'ta-s' }, `원래 뜻: ${t.d0}`) : null),
+      h('div', { class: 'ta-b' },
+        btn('고치기', () => { S.form = { kind: 'auto', id: t.id, k: t.k, d: t.d }; S.msg = ''; redraw(); }),
+        t.off
+          ? btn('켜기', () => save(app, redraw, 'auto', t.id, (b) => { const o = { ...b }; delete o.off; return o; }, `켰습니다 · ${t.k}`), 'hot')
+          : btn('끄기', () => {
+            if (!ask(`'${t.k}' 칭호를 끌까요? 받은 사람 모두의 칭호에서 빠집니다.`)) return;
+            save(app, redraw, 'auto', t.id, (b) => ({ ...b, off: true }), `껐습니다 · ${t.k}`);
+          }, 'out'),
+        has ? btn('처음대로', () => {
+          if (!ask(`'${t.k0}' 칭호를 처음 이름·뜻으로 되돌릴까요?`)) return;
+          save(app, redraw, 'auto', t.id, () => null, `처음대로 되돌렸습니다 · ${t.k0}`);
+        }) : null));
+    if (f) {
+      li.append(formBox([field(`이름(20자, 원래 ${t.k0})`, 'k', 20, t.k0), field('뜻(60자)', 'd', 60, t.d0)], () => {
+        const nk = cutS(S.form.k, 20), nd = cutS(S.form.d, 60);
+        save(app, redraw, 'auto', t.id, (b) => ({ ...b, k: nk && nk !== t.k0 ? nk : '', d: nd && nd !== t.d0 ? nd : '' }), `고쳤습니다 · ${nk || t.k0}`);
+      }, '저장'));
+    }
+    return li;
+  }
+
+  // 운영진 화면의 '칭호' 구역. redraw = admin.js의 다시 그리기
+  function panel(app, redraw) {
+    if (!LIVE || typeof LIVE.has3 !== 'function' || !LIVE.has3()) return pnl('칭호', {}, h('p', { class: 'note' }, '칭호 관리는 아직 열리지 않았습니다.'));
+    const all = DB.TITLES;
+    const autos = all.filter((t) => !t.special);
+    const autoIds = new Set(autos.map((t) => t.id));
+    const box = h('div', { class: 'ta' }, specialPanel(app, redraw, autoIds), autoPanel(app, redraw, autos));
+    // 그만두기: 폼만 닫고 다시 그림
+    box.addEventListener('ta-close', () => redraw());
+    return box;
+  }
+
+  return { panel };
+})();
+
 /* THUG 클랜 — 입장, 채널 줄, 메뉴, 화면 바꾸기 */
 (() => {
   const iconCache = new Map();
@@ -8294,10 +9484,11 @@ const TT = (() => {
     mounted: [],
     onLeave(fn) { app.leave.push(fn); },
     onMount(fn) { app.mounted.push(fn); },
-    me: () => store.get('thug.me', null),
+    // 나: 본인 확인된 사람이 있으면 그 사람, 없으면 이 기기에서 고른 아이디(thug.me)
+    me: () => { const p = typeof ME !== 'undefined' ? ME.person() : null; return p ? p.id : store.get('thug.me', null); },
     setMe: (id) => store.set('thug.me', id),
-    // 모습 구하기(모든 초상이 이것을 씀): 저장값이 있으면 그 등급에 맞게 고치고, 없으면 그 등급의 기본 모습
-    lookOf: (p) => app.fitLook(store.get('thug.look2.' + p.id, null), p),
+    // 모습 구하기(모든 초상이 이것을 씀): 공유본(본인 확인된 사람이 올린 것) → 이 기기 저장본 → 그 등급의 기본 모습. 등급에 맞게 고침
+    lookOf: (p) => { const s = sharedOf(p); return app.fitLook(s && isObj(s.look) ? s.look : store.get('thug.look2.' + p.id, null), p); },
     fitLook(look, p) {
       const g = p.grade || 1;
       const out = look && typeof look === 'object' ? PT.normalize(look, p, g) : PT.defaults(p, g);
@@ -8332,8 +9523,38 @@ const TT = (() => {
       const k = app.medalKind(p, look);
       return k && typeof MD !== 'undefined' ? MD.wrap(el, k, where) : el;
     },
-    linesOf: (p) => ({ say: '', win: '', lose: '', ...store.get('thug.line.' + p.id, {}) }),
+    linesOf: (p) => { const s = sharedOf(p); return linesClean(s && isObj(s.lines) ? s.lines : store.get('thug.line.' + p.id, null)); },
     lineOf: (p) => app.linesOf(p).say || DB.autoLine(p),
+    // 꾸미기 저장: 본인 확인된 본인이면 창고(모두에게 보임)와 이 기기에, 아니면 이 기기에만.
+    // { ok: 저장됨(확인된 본인은 창고까지), shared: 창고에 저장됨, reason?: 창고에 못 올린 까닭('net' = 연결 안 됨, 그 밖은 창고 reason) }
+    async saveLook(p, look, lines) {
+      const lk = isObj(look) ? look : null;
+      const ln = linesClean(lines);
+      const mine = isMine(p);
+      let local = store.set('thug.line.' + p.id, ln);
+      if (lk) local = store.set('thug.look2.' + p.id, lk) && local;
+      let shared = false, reason;
+      if (mine) {
+        const r = await LIVE.meCall('thug_look_put', { p_look: lk, p_lines: ln });
+        if (r && r.ok) { shared = true; putShared(ME.nameLc(), { look: lk, lines: ln }); } else reason = r ? r.reason || 'fail' : 'net';
+      }
+      app.clearIcons();
+      // 확인된 본인은 창고에 올라가야 저장한 것(ok = shared). 못 올렸으면 이 기기에만 남고 reason을 줌
+      const ok = mine ? shared : local;
+      return reason ? { ok, shared, reason } : { ok, shared };
+    },
+    // 처음 모습으로: 이 기기 저장본을 지우고, 본인 확인된 본인이면 창고 줄도 지움
+    async resetLook(p) {
+      const mine = isMine(p);
+      store.del('thug.look2.' + p.id); store.del('thug.line.' + p.id);
+      let shared = false, reason;
+      if (mine) {
+        const r = await LIVE.meCall('thug_look_put', { p_look: null, p_lines: null });
+        if (r && r.ok) { shared = true; putShared(ME.nameLc(), null); } else reason = r ? r.reason || 'fail' : 'net';
+      }
+      app.clearIcons();
+      return reason ? { ok: false, shared, reason } : { ok: true, shared };
+    },
     // 초상 아이콘(정지 그림). 같은 모습은 한 번 그린 것을 베껴 씀
     icon(p, size = 24) {
       const look = app.lookOf(p);
@@ -8366,6 +9587,33 @@ const TT = (() => {
       app._tt = setTimeout(() => { t.hidden = true; }, 2600);
     },
   };
+
+  if (LIVE) LIVE.toast = app.toast; // live.js의 알림(본인 확인 링크 등)
+
+  // 꾸미기 공유본(LIVE.club.looks, 0003 창고일 때만). 그 사람의 이름·다른 이름 가운데 있는 것
+  function isObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  function sharedOf(p) {
+    if (!LIVE || !LIVE.has3 || !LIVE.has3()) return null;
+    const L = LIVE.club.looks || {};
+    for (const a of [p.name, ...(p.aliases || [])]) { const v = L[String(a).toLowerCase()]; if (isObj(v)) return v; }
+    return null;
+  }
+  function linesClean(x) {
+    const s = (v) => (typeof v === 'string' ? v.trim().slice(0, 30) : '');
+    const o = isObj(x) ? x : {};
+    return { say: s(o.say), win: s(o.win), lose: s(o.lose) };
+  }
+  const isMine = (p) => { if (typeof ME === 'undefined' || ME.state() !== 'ok') return false; const m = ME.person(); return !!m && m.id === p.id; };
+  // 창고에 저장한 내 꾸미기를 화면의 클랜 기록과 이 기기 저장값에도 반영 → 초상 다시 그림(thug:club)
+  function putShared(n, v) {
+    if (!n || !LIVE) return;
+    const looks = { ...(LIVE.club.looks || {}) };
+    if (v) looks[n] = v; else delete looks[n];
+    LIVE.club.looks = looks;
+    store.set('thug.club', LIVE.club);
+    app.clearIcons();
+    try { window.dispatchEvent(new Event('thug:club')); } catch { /* 옛 브라우저 */ }
+  }
 
   const gate = document.getElementById('gate');
   const shell = document.getElementById('app');
@@ -8433,10 +9681,27 @@ const TT = (() => {
       window.addEventListener('thug:admin', drawAdminTag);
       window.addEventListener('thug:net', drawOffTag);
       // 클랜 기록이 새로 오면 클랜전 보기 화면만 그 자리에서 다시 그림(리그는 league.js가 스스로)
+      window.addEventListener('thug:admindata', drawAdminTag);
+      // 본인 상태가 바뀌면: 확인 완료 알림, 이 기기에만 있던 내 꾸미기 올리기, 본인 확인·꾸미기·채널 화면 다시 그림
+      window.addEventListener('thug:me', (e) => {
+        const d = (e && e.detail) || {};
+        const w = LIVE.who || {};
+        if (w.state === 'ok' && d.prev !== 'ok' && typeof ME !== 'undefined') {
+          if (d.prev === 'pending' || d.link) app.toast(`본인 확인 완료 · ${ME.shown(w.name)}`);
+          const p = ME.person();
+          if (p && !sharedOf(p)) {
+            const lk = store.get('thug.look2.' + p.id, null), ln = store.get('thug.line.' + p.id, null);
+            if (isObj(lk) || isObj(ln)) app.saveLook(p, isObj(lk) ? lk : null, ln).catch((err) => console.error(err));
+          }
+        }
+        const hs = decodeURIComponent(location.hash.slice(1)) || 'channel';
+        if (hs === 'me' || hs === 'look' || hs === 'channel') route({ keep: true });
+      });
       window.addEventListener('thug:club', () => {
         const hs = decodeURIComponent(location.hash.slice(1));
         // 리그 메달·클랜전 세트가 바뀌면 칭호도 다시 셈(칭호 목록 화면이면 다시 그림)
         app._mm = null;
+        app.clearIcons(); // 다른 사람의 공유 꾸미기가 새로 보이게
         if (typeof TT !== 'undefined') { try { TT.refresh(app); } catch (e) { console.error(e); } }
         if (hs === 'war' || hs.startsWith('war--') || hs === 'weekly' || hs.startsWith('weekly--') || hs === 'titles' || hs.startsWith('titles--')) route({ keep: true });
       });
@@ -8445,8 +9710,17 @@ const TT = (() => {
   }
 
   // 운영진으로 들어와 있으면 나가기 왼쪽에 '운영진' 단추(정식판)
+  // 본인 확인 대기 신청이 있으면 '운영진 · 신청 2'(0003 창고, LIVE.adminData)
   const adminTag = h('a', { class: 'btn sm adm-btn', href: '#admin', hidden: true }, '운영진');
-  function drawAdminTag() { adminTag.hidden = !(LIVE && LIVE.isAdmin()); }
+  function drawAdminTag() {
+    const on = !!(LIVE && LIVE.isAdmin());
+    adminTag.hidden = !on;
+    const ad = on && LIVE.has3 && LIVE.has3() ? LIVE.adminData : null;
+    const n = ad && Array.isArray(ad.keys) ? ad.keys.filter((k) => k && k.state === 'pending').length : 0;
+    // 휴대폰은 머리 줄이 좁아 '운영진 2'로(me.css가 ' · 신청'을 숨김)
+    adminTag.replaceChildren('운영진', n ? h('span', { class: 'adm-n' }, h('span', { class: 'adm-n-w' }, ' · 신청'), ` ${n}`) : '');
+    adminTag.setAttribute('aria-label', n ? `운영진 화면(본인 확인 신청 ${n}건)` : '운영진 화면');
+  }
   drawAdminTag();
   // 연결이 끊겨 있는 동안 위 줄에 '오프라인'(live.js가 online·offline 때 thug:net을 보냄)
   const offTag = h('span', { class: 'temp-tag off-tag', hidden: true }, '오프라인');
@@ -8455,8 +9729,10 @@ const TT = (() => {
 
   // 나가기: 이 기기의 입장 기록(정식판은 운영진 입장도)을 지우므로 먼저 물어봄
   function leave() {
-    const admin = LIVE && LIVE.isAdmin();
-    const q = `나가면 이 기기의 입장 기록이 지워져 입장 암호를 다시 넣어야 합니다${admin ? '(운영진 입장도 풀림)' : ''}. 나갈까요?`;
+    const also = [];
+    if (LIVE && LIVE.isAdmin()) also.push('운영진 입장');
+    if (typeof ME !== 'undefined' && ME.can() && ME.state() !== 'none') also.push('본인 확인');
+    const q = `나가면 이 기기의 입장 기록이 지워져 입장 암호를 다시 넣어야 합니다${also.length ? `(${also.join('·')}도 풀림)` : ''}. 나갈까요?`;
     let ok = true;
     try { ok = window.confirm(q); } catch { ok = true; }
     if (!ok) return;
@@ -8479,6 +9755,7 @@ const TT = (() => {
     else if (hs === 'rank') { view = V.rank(app); tab = 'rank'; }
     else if (hs === 'games') { view = V.games(app); tab = 'games'; }
     else if (hs === 'look') { view = V.look(app); tab = 'look'; }
+    else if (hs === 'me' && typeof ME !== 'undefined') { view = ME.view(app); tab = 'look'; }
     else if ((hs === 'titles' || hs.startsWith('titles--')) && typeof TT !== 'undefined') { view = TT.view(app, hs.startsWith('titles--') ? hs.slice(8) : null); tab = 'rank'; }
     else if (hs === 'admin' && LIVE) { view = AD.view(app); tab = ''; }
     else if (hs === 'war' || hs.startsWith('war--')) { view = WR.view(app, hs.startsWith('war--') ? hs.slice(5) : null); tab = 'war'; }
@@ -8526,9 +9803,20 @@ const TT = (() => {
   'use strict';
   const C = window.THUG_CFG || {};
   const PASS = 'thug.pass', CACHE = 'thug.bundle', CLUB = 'thug.club', ADMIN = 'thug.admin';
+  const KEY = 'thug.key', WHO = 'thug.who'; // 5단계: 이 기기 열쇠(본인 확인), 마지막으로 확인한 본인 상태
   const get = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   const put = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
   const del = (k) => { try { localStorage.removeItem(k); } catch { /* 저장 막힌 기기 */ } };
+  const okKey = (k) => typeof k === 'string' && /^[0-9a-f]{64}$/i.test(k);
+
+  // 본인 확인 링크: #key=<64자 16진수>. 지금 열쇠를 바로 덮지 않고 받아 두었다가, 입장 뒤 thug_me로 확인해 ok일 때만 바꿈
+  let linkKey = null;
+  (() => {
+    const m = /^#key=([0-9a-fA-F]{64})(?:&.*)?$/.exec(location.hash);
+    if (!m) return;
+    linkKey = m[1].toLowerCase();
+    try { history.replaceState(null, '', location.pathname + location.search); } catch { location.hash = ''; }
+  })();
 
   // 주소 이전(2026-11-25): 옛 주소(kare1718.github.io/thug-clan)의 '옮겨 가는 쪽'이 이 기기 저장을 실어 보냄.
   // #move=<base64url JSON {v:1, d:{키: 저장 글}}>&to=<화면>. 정해 둔 키만 받고, 이 주소에 이미 있는 것은 덮지 않음
@@ -8568,14 +9856,46 @@ const TT = (() => {
     } finally { clearTimeout(t); }
   }
 
-  // 창고의 클랜 기록(리그·클랜원 구분·클랜전). 늘 이 모양으로 둠
+  // 창고의 클랜 기록(리그·클랜원 구분·클랜전, 0003부터 v·칭호·꾸미기). 늘 이 모양으로 둠
+  const isObj = (x) => !!x && typeof x === 'object' && !Array.isArray(x);
   const clubOf = (c) => ({
+    v: c && Number.isFinite(+c.v) ? +c.v : 0,
     leagues: c && Array.isArray(c.leagues) ? c.leagues : [],
-    members: c && c.members && typeof c.members === 'object' && !Array.isArray(c.members) ? c.members : {},
+    members: c && isObj(c.members) ? c.members : {},
     wars: c && Array.isArray(c.wars) ? c.wars : [],
+    titles: c && Array.isArray(c.titles) ? c.titles : [],
+    looks: c && isObj(c.looks) ? c.looks : {},
   });
-  const fire = (name) => { try { window.dispatchEvent(new Event(name)); } catch { /* 옛 브라우저 */ } };
+  const fire = (name, detail) => {
+    try { window.dispatchEvent(detail === undefined ? new Event(name) : new CustomEvent(name, { detail })); } catch { /* 옛 브라우저 */ }
+  };
   const adminPass = () => { const a = get(ADMIN); return a && a.token && (!a.exp || Date.parse(a.exp) > Date.now()) ? a : null; };
+  const passTok = () => { const p = get(PASS); return p && p.token && (!p.exp || Date.parse(p.exp) > Date.now()) ? p.token : null; };
+  const keyOf = () => { const k = get(KEY); return k && okKey(k.key) ? k.key.toLowerCase() : null; };
+  // 화면 알림(main.js가 live.toast = app.toast로 이음)
+  const notice = (msg) => { try { if (typeof live.toast === 'function') live.toast(msg); } catch { /* 알림 없이 */ } };
+
+  // 본인 상태 { state, name(소문자), code }. 열쇠가 없으면 늘 none
+  const STATES = ['none', 'pending', 'ok', 'off'];
+  const NONE = { state: 'none', name: null, code: null };
+  const whoOf = (w) => {
+    if (!w || !STATES.includes(w.state) || w.state === 'none') return { ...NONE };
+    return { state: w.state, name: typeof w.name === 'string' && w.name ? w.name.toLowerCase() : null, code: w.code != null && /^\d{1,8}$/.test(String(w.code)) ? String(w.code) : null };
+  };
+  let meAt = 0; // 마지막으로 thug_me를 부른 때
+  // 창고에 이 기기 열쇠를 버린다고 알림(0003 창고이고 열쇠·통행증이 있을 때만). 결과와 관계없이 끝나면 돌아옴
+  async function dropKey() {
+    const key = keyOf(), tok = live.token();
+    if (!live.has3() || !key || !tok || !C.url) return;
+    try { await call('thug_key_drop', { p_token: tok, p_key: key }, 3000); } catch { /* 연결 안 됨: 이 기기만 지움 */ }
+  }
+  function setWho(w, extra) {
+    const prev = live.who;
+    const next = whoOf(w);
+    live.who = next;
+    if (next.state === 'none') del(WHO); else put(WHO, { ...next, at: new Date().toISOString() });
+    if (prev.state !== next.state || prev.name !== next.name || prev.code !== next.code) fire('thug:me', { prev: prev.state, ...(extra || {}) });
+  }
 
   const live = window.THUG_LIVE = {
     offline: false,
@@ -8583,24 +9903,99 @@ const TT = (() => {
     club: clubOf(null),
     clubAt: 0,
     builtAt: null,
-    leave() { del(PASS); del(CACHE); del(CLUB); del(ADMIN); location.hash = ''; location.reload(); },
+    // 나가기: 본인 확인 열쇠가 있으면 창고에 먼저 알림(3초까지, 실패해도 나감) → 이 기기 저장을 지우고 새로 엶
+    async leave() {
+      await dropKey();
+      del(PASS); del(CACHE); del(CLUB); del(ADMIN); del(KEY); del(WHO); location.hash = ''; location.reload();
+    },
+    // 창고가 0003(본인 확인·꾸미기 공유·칭호 관리·방명록)까지 적용됐는가. 거짓이면 새 함수는 하나도 부르지 않음
+    has3: () => !!(live.club && live.club.v >= 3),
+    // 읽기 함수의 p_token: 입장 통행증, 없으면 운영진 통행증
+    token: () => passTok() || ((adminPass() || {}).token || null),
+    who: keyOf() ? whoOf(get(WHO)) : { ...NONE },
+    // 스스로 신청 → 이 기기에 열쇠, who = pending. 창고 응답(연결 안 되면 null)
+    async keyAsk(name) {
+      if (!live.has3()) return null;
+      const tok = live.token();
+      if (!tok) return { ok: false, reason: 'pass' };
+      let r = null;
+      try { r = await call('thug_key_ask', { p_token: tok, p_name: String(name || '').trim() }); } catch { r = null; }
+      if (r && r.ok && okKey(r.key)) {
+        put(KEY, { key: r.key.toLowerCase() });
+        meAt = Date.now();
+        setWho({ state: 'pending', name: r.name || name, code: r.code != null ? String(r.code) : null });
+      }
+      return r;
+    },
+    // 이 기기의 본인 확인 풀기(신청 취소 포함): 창고에 알린 뒤(대기 줄은 지움, 확인된 줄은 끊음) 이 기기 열쇠를 지움.
+    // 연결이 안 되거나 실패해도 이 기기 열쇠는 지움. Promise
+    async keyDrop() { await dropKey(); del(KEY); setWho(NONE); },
+    keyMore: () => live.meCall('thug_key_more', {}),
+    linkOf: (key) => location.origin + location.pathname + '#key=' + key,
+    // 이 열쇠의 지금 상태를 창고에서 확인. 확인했으면 true
+    async refreshMe() {
+      if (!live.has3()) return false;
+      const key = keyOf();
+      if (!key) { setWho(NONE); return true; }
+      const tok = live.token();
+      if (!tok || !C.url) return false;
+      meAt = Date.now();
+      let r = null;
+      try { r = await call('thug_me', { p_token: tok, p_key: key }); } catch { r = null; }
+      if (!r || !r.ok) return false;
+      if (keyOf() !== key) return false; // 그 사이 열쇠가 바뀜(다른 신청·링크)
+      if (r.state === 'none') { del(KEY); setWho(NONE); return true; } // 창고에 없는 열쇠(청소됨)
+      setWho({ state: r.state, name: r.name, code: r.code });
+      return true;
+    },
+    // 본인 쓰기: p_token·p_key를 붙여 부름. 연결 안 되면 null. 열쇠가 안 맞으면(reason 'key') 본인 상태를 새로 확인
+    async meCall(fn, body) {
+      const key = keyOf(), tok = live.token();
+      if (!key) return { ok: false, reason: 'key' };
+      if (!tok) return { ok: false, reason: 'pass' };
+      let r = null;
+      try { r = await call(fn, { ...body, p_token: tok, p_key: key }); } catch { r = null; }
+      if (r && r.ok === false && r.reason === 'key') live.refreshMe();
+      return r;
+    },
+    // 운영진만 보는 자료(메모·본인 확인 열쇠·지운 클랜전)
+    adminData: null,
+    async refreshAdmin() {
+      if (!live.has3() || !adminPass()) {
+        if (live.adminData) { live.adminData = null; fire('thug:admindata'); }
+        return false;
+      }
+      const r = await live.adminCall('thug_admin_data', {});
+      if (!r || !r.ok) return false;
+      live.adminData = { notes: isObj(r.notes) ? r.notes : {}, keys: Array.isArray(r.keys) ? r.keys : [], wars_gone: Array.isArray(r.wars_gone) ? r.wars_gone : [] };
+      fire('thug:admindata');
+      return true;
+    },
     // 운영진: 운영 암호 → 이 기기에 운영진 통행증(30일)
     isAdmin: () => !!adminPass(),
     adminUntil: () => { const a = adminPass(); return a && a.exp ? Date.parse(a.exp) : null; },
     async adminEnter(pw) {
       let r = null;
       try { r = await call('thug_admin_enter', { p_admin: pw }); } catch { r = null; }
-      if (r && r.ok) { put(ADMIN, { token: r.token, exp: r.expires }); fire('thug:admin'); live.refreshClub(); }
+      if (r && r.ok) {
+        put(ADMIN, { token: r.token, exp: r.expires });
+        fire('thug:admin');
+        live.refreshClub().then(() => { if (live.has3()) live.refreshAdmin(); });
+      }
       return r;
     },
-    adminLeave() { del(ADMIN); fire('thug:admin'); },
+    adminLeave() {
+      del(ADMIN);
+      if (live.adminData) { live.adminData = null; fire('thug:admindata'); }
+      fire('thug:admin');
+    },
     // 운영진 쓰기: p_atok을 붙여 부름. 연결이 안 되면 null. 통행증이 끝났으면 지우고 알림
     async adminCall(fn, body) {
       const a = adminPass();
       if (!a) { fire('thug:admin'); return { ok: false, reason: 'admin' }; }
       let r = null;
       try { r = await call(fn, { ...body, p_atok: a.token }); } catch { r = null; }
-      if (r && r.ok === false && r.reason === 'admin') { del(ADMIN); fire('thug:admin'); }
+      if (r && r.ok === false && r.reason === 'admin') { del(ADMIN); live.adminData = null; fire('thug:admindata'); fire('thug:admin'); }
       return r;
     },
     // 클랜 기록만 다시 받기(입장 통행증, 없으면 운영진 통행증으로)
@@ -8659,6 +10054,34 @@ const TT = (() => {
     document.getElementById('snapshot').textContent = JSON.stringify(bundle);
     gate.hidden = true;
     window.__thugStart();
+    afterStart();
+  }
+
+  // 화면을 그린 뒤: 받아 둔 링크 확인 → 저장된 열쇠의 상태 새로 확인 → 운영진 자료(모두 0003 창고일 때만)
+  function afterStart() {
+    if (!live.has3()) { linkKey = null; return; }
+    if (live.offline) {
+      if (linkKey) { linkKey = null; notice('연결이 안 되어 링크를 확인하지 못했습니다'); }
+      return;
+    }
+    if (linkKey) takeLink(linkKey); else if (keyOf()) live.refreshMe();
+    if (live.isAdmin()) live.refreshAdmin();
+  }
+
+  async function takeLink(k) {
+    linkKey = null;
+    const tok = live.token();
+    let r = null;
+    if (tok) { try { r = await call('thug_me', { p_token: tok, p_key: k }); } catch { r = null; } }
+    if (r && r.ok && r.state === 'ok') {
+      put(KEY, { key: k });
+      meAt = Date.now();
+      setWho({ state: 'ok', name: r.name, code: null }, { link: true });
+      location.hash = 'me';
+      return;
+    }
+    notice('링크가 끊겼거나 잘못됐습니다');
+    if (keyOf()) live.refreshMe();
   }
 
   async function load(pass) {
@@ -8716,12 +10139,18 @@ const TT = (() => {
     const was = live.offline;
     live.offline = false;
     fire('thug:net');
-    if (was) live.refreshClub();
+    if (was) live.refreshClub().then(() => { if (live.has3() && keyOf()) live.refreshMe(); });
   });
 
-  // 화면이 다시 보일 때 클랜 기록(리그·클랜전)이 5분 넘게 묵었으면 새로 받음
+  // 화면이 다시 보일 때 클랜 기록(리그·클랜전)이 5분 넘게 묵었으면 새로 받음.
+  // 본인 확인 대기 중이면 15초 넘게 지났을 때마다, 확인된 뒤에는 5분 넘게 지났을 때 본인 상태를 새로 확인
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && started && !live.offline && Date.now() - live.clubAt > 5 * 60e3) live.refreshClub();
+    if (document.visibilityState !== 'visible' || !started || live.offline) return;
+    if (Date.now() - live.clubAt > 5 * 60e3) live.refreshClub();
+    if (live.has3() && keyOf()) {
+      const gap = live.who.state === 'pending' ? 15e3 : 5 * 60e3;
+      if (Date.now() - meAt > gap) live.refreshMe();
+    }
   });
 
   // 앱처럼 깔기: 화면 파일을 기기에 저장해 두는 도우미(기록은 저장하지 않음)
