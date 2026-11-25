@@ -1728,6 +1728,20 @@ span.md-wrap > canvas.md {
   .adm-btn .adm-n-w { display: none; }
 }
 
+/* 처음 화면의 본인 확인: '나중에 하기'·'내 아이디가 목록에 없음' (2026-11-26) */
+.me-foot:empty { display: none; }
+.me-nolist { margin-top: 10px; }
+.me-txt { padding: 0; border: 0; background: none; font: var(--f-s); color: var(--link); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.me-txt:hover { color: #fff; }
+/* 머리 줄 '새 판' 단추(새로 올라온 판이 있을 때만) */
+.chan .new-btn { flex: none; color: var(--sys); }
+@media (max-width: 699px) {
+  .me-txt { min-height: 40px; }
+  /* 휴대폰: 머리 줄이 좁아(채널 이름이 잘림) 맨 아래 한 줄로 */
+  .chan-in:has(> .new-btn:not([hidden])) { grid-template-areas: "mark name adm out" "mark meta meta meta" "new new new new"; }
+  .chan .new-btn { grid-area: new; margin-top: 8px; }
+}
+
 /* THUG 클랜 — 방명록·채팅(posts.js, 전역 PO)의 모양. 5단계(2026-11-25). 묶을 때 맨 뒤에 붙음 */
 /* 사람이 쓴 글: 자동 대사 줄(.c-line-say)과 같은 꼴(시각 · 초상·이름 : 글)에 옅은 바탕을 깔아 구분. 이어진 글은 바탕이 이어짐 */
 .c.c-post { margin: 0 -14px; padding: 5px 14px; background: rgba(47, 99, 184, 0.16); }
@@ -3205,11 +3219,28 @@ const ME = (() => {
     return box;
   }
 
-  // #me 화면
+  // #me 화면. 처음 화면으로 뜬 때(app.state.meFirst, main.js가 정함)는 '나중에 하기'와 '채널로 가기'를 더함
   function view(app) {
-    const title = h('header', { class: 'ptitle' }, h('h1', null, '본인 확인'), h('p', null, '꾸미기 공유와 방명록 쓰기에 필요'));
-    const go = state() === 'ok' ? h('div', { class: 'btns me-go' }, h('a', { class: 'btn', href: '#look' }, '꾸미기'), h('a', { class: 'btn', href: '#channel' }, '채널')) : null;
-    return h('div', { class: 'page me-page' }, title, panel(app), go);
+    const first = !!(app.state && app.state.meFirst) && can();
+    const title = h('header', { class: 'ptitle' }, h('h1', null, '본인 확인'),
+      h('p', null, first ? '본인 확인부터 해 주세요 (글쓰기와 꾸미기 공유에 필요)' : '꾸미기 공유와 방명록 쓰기에 필요'));
+    const later = () => { store.set('thug.meLater', true); location.hash = 'channel'; };
+    const foot = h('div', { class: 'me-foot' });
+    const drawFoot = () => {
+      const st = state();
+      foot.replaceChildren(...(st === 'ok' ? [h('div', { class: 'btns me-go' }, h('a', { class: 'btn', href: '#look' }, '꾸미기'), h('a', { class: 'btn', href: '#channel' }, '채널'))]
+        : !first ? []
+          : st === 'pending' ? [h('div', { class: 'btns me-go' }, h('a', { class: 'btn', href: '#channel' }, '채널로 가기'))]
+            : [h('div', { class: 'btns me-go' }, h('button', { type: 'button', class: 'btn', onclick: later }, '나중에 하기')),
+              h('p', { class: 'me-nolist' }, h('button', { type: 'button', class: 'me-txt', onclick: later }, '내 아이디가 목록에 없음'))]));
+    };
+    if (LIVE) {
+      const on = () => { if (foot.isConnected) drawFoot(); };
+      window.addEventListener('thug:me', on);
+      app.onLeave(() => window.removeEventListener('thug:me', on));
+    }
+    drawFoot();
+    return h('div', { class: 'page me-page' }, title, panel(app), foot);
   }
 
   // 한 줄 안내: "글을 쓰려면 본인 확인이 필요합니다 [본인 확인]". 기능이 꺼져 있거나 이미 확인됐으면 null
@@ -3217,8 +3248,9 @@ const ME = (() => {
     if (!can()) return null;
     const st = state();
     if (st === 'ok') return null;
+    const code = who().code;
     return h('p', { class: 'me-gate' },
-      h('span', null, `${what ? what + ' ' : ''}본인 확인이 필요합니다${st === 'pending' ? '(승인 대기 중)' : ''}`),
+      h('span', null, st === 'pending' ? `승인 대기 · 번호 ${code || '----'}` : `${what ? what + ' ' : ''}본인 확인이 필요합니다`),
       h('a', { class: 'btn sm', href: '#me' }, '본인 확인'));
   }
 
@@ -9656,6 +9688,7 @@ const TA = (() => {
           h('span', null, `기록 ${fmt.when(DB.NOW)}`),
           staleTag(),
           offTag)),
+      newTag,
       adminTag,
       h('button', { type: 'button', class: 'btn sm out', 'aria-label': '나가기', onclick: leave }, IC.draw('exit', 1), h('span', null, '나가기'))));
 
@@ -9682,6 +9715,8 @@ const TA = (() => {
       window.addEventListener('thug:net', drawOffTag);
       // 클랜 기록이 새로 오면 클랜전 보기 화면만 그 자리에서 다시 그림(리그는 league.js가 스스로)
       window.addEventListener('thug:admindata', drawAdminTag);
+      window.addEventListener('thug:newbuild', () => { newTag.hidden = false; });
+      if (LIVE.newBuild) newTag.hidden = false;
       // 본인 상태가 바뀌면: 확인 완료 알림, 이 기기에만 있던 내 꾸미기 올리기, 본인 확인·꾸미기·채널 화면 다시 그림
       window.addEventListener('thug:me', (e) => {
         const d = (e && e.detail) || {};
@@ -9706,8 +9741,20 @@ const TA = (() => {
         if (hs === 'war' || hs.startsWith('war--') || hs === 'weekly' || hs.startsWith('weekly--') || hs === 'titles' || hs.startsWith('titles--')) route({ keep: true });
       });
     }
+    // 처음 화면: 본인 확인 전이고 '나중에 하기'를 고른 적이 없으면 채널 대신 본인 확인부터(0003 창고일 때만).
+    // 주소에 다른 화면이 적혀 있거나(공유 링크) 본인 확인 링크(#key=)로 들어왔거나 연결이 없으면 가로채지 않음
+    const hs0 = decodeURIComponent(location.hash.slice(1));
+    if (LIVE && typeof ME !== 'undefined' && ME.can() && !LIVE.offline && !LIVE.linkIn && (!hs0 || hs0 === 'channel')
+      && LIVE.who.state === 'none' && !LIVE.hasKey() && !store.get('thug.meLater', false)) {
+      app.state.meFirst = true;
+      try { history.replaceState(null, '', location.pathname + location.search + '#me'); } catch { location.hash = 'me'; return; }
+    }
     route();
   }
+
+  // 새 판이 올라왔으면(live.js가 version.json으로 확인) 머리 줄에 '새 판' 단추. 누르면 새로 엶(저절로 열지 않음)
+  const newTag = h('button', { type: 'button', class: 'btn sm new-btn', hidden: true, 'aria-label': '새 판 · 새로 열기', onclick: () => location.reload() },
+    '새 판', h('span', { class: 'new-w' }, ' · 새로 열기'));
 
   // 운영진으로 들어와 있으면 나가기 왼쪽에 '운영진' 단추(정식판)
   // 본인 확인 대기 신청이 있으면 '운영진 · 신청 2'(0003 창고, LIVE.adminData)
@@ -9747,6 +9794,7 @@ const TA = (() => {
     // 칭호: 리그 메달·클랜전·운영진 고침을 반영해 화면마다 한 번 다시 셈(titles.js가 없으면 건너뜀)
     if (typeof TT !== 'undefined') { try { TT.refresh(app); } catch (e) { console.error(e); } }
     const hs = decodeURIComponent(location.hash.slice(1)) || 'channel';
+    if (hs !== 'me') app.state.meFirst = false; // 처음 화면의 본인 확인 모습은 그 화면에 있는 동안만
     // 리그·클랜전·운영진 화면에 들어올 때 클랜 기록이 2분 넘게 묵었으면 새로 받음(받으면 thug:club)
     if (LIVE && !opt.keep && !LIVE.offline && /^(league|war|admin|weekly)/.test(hs) && Date.now() - LIVE.clubAt > 120e3) LIVE.refreshClub();
     let view, tab;
@@ -9796,7 +9844,7 @@ const TA = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "0738fb8756"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
@@ -9804,6 +9852,7 @@ const TA = (() => {
   const C = window.THUG_CFG || {};
   const PASS = 'thug.pass', CACHE = 'thug.bundle', CLUB = 'thug.club', ADMIN = 'thug.admin';
   const KEY = 'thug.key', WHO = 'thug.who'; // 5단계: 이 기기 열쇠(본인 확인), 마지막으로 확인한 본인 상태
+  const LATER = 'thug.meLater'; // 처음 화면의 본인 확인에서 '나중에 하기'를 고름
   const get = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   const put = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
   const del = (k) => { try { localStorage.removeItem(k); } catch { /* 저장 막힌 기기 */ } };
@@ -9894,6 +9943,7 @@ const TA = (() => {
     const next = whoOf(w);
     live.who = next;
     if (next.state === 'none') del(WHO); else put(WHO, { ...next, at: new Date().toISOString() });
+    if (next.state === 'ok') del(LATER); // 확인되면 '나중에 하기' 기록은 필요 없음
     if (prev.state !== next.state || prev.name !== next.name || prev.code !== next.code) fire('thug:me', { prev: prev.state, ...(extra || {}) });
   }
 
@@ -9906,13 +9956,18 @@ const TA = (() => {
     // 나가기: 본인 확인 열쇠가 있으면 창고에 먼저 알림(3초까지, 실패해도 나감) → 이 기기 저장을 지우고 새로 엶
     async leave() {
       await dropKey();
-      del(PASS); del(CACHE); del(CLUB); del(ADMIN); del(KEY); del(WHO); location.hash = ''; location.reload();
+      del(PASS); del(CACHE); del(CLUB); del(ADMIN); del(KEY); del(WHO); del(LATER); location.hash = ''; location.reload();
     },
     // 창고가 0003(본인 확인·꾸미기 공유·칭호 관리·방명록)까지 적용됐는가. 거짓이면 새 함수는 하나도 부르지 않음
     has3: () => !!(live.club && live.club.v >= 3),
     // 읽기 함수의 p_token: 입장 통행증, 없으면 운영진 통행증
     token: () => passTok() || ((adminPass() || {}).token || null),
     who: keyOf() ? whoOf(get(WHO)) : { ...NONE },
+    hasKey: () => !!keyOf(), // 이 기기에 본인 확인 열쇠가 있음(상태는 thug_me로 확인 중일 수 있음)
+    linkIn: !!linkKey, // 본인 확인 링크(#key=)로 열림. 처음 화면을 본인 확인으로 가로채지 않음
+    // 새 판: 열어 둔 화면보다 새로 올라온 판이 있음(version.json). thug:newbuild 이벤트
+    newBuild: false,
+    checkBuild: () => checkBuild(),
     // 스스로 신청 → 이 기기에 열쇠, who = pending. 창고 응답(연결 안 되면 null)
     async keyAsk(name) {
       if (!live.has3()) return null;
@@ -10016,6 +10071,21 @@ const TA = (() => {
     if (!put(CLUB, live.club)) del(CLUB);
     fire('thug:club');
   }
+
+  // 새 판 확인: version.json의 build가 이 쪽(THUG_CFG.build)과 다르면 알림. 받지 못하면 조용히 넘어감(http·https에서만)
+  let verAt = 0;
+  async function checkBuild() {
+    if (!C.build || live.newBuild || !/^https?:$/.test(location.protocol)) return false;
+    verAt = Date.now();
+    try {
+      const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return false;
+      const v = await r.json();
+      if (v && typeof v.build === 'string' && v.build && v.build !== C.build) { live.newBuild = true; fire('thug:newbuild'); return true; }
+    } catch { /* 연결 안 됨·파일 없음 */ }
+    return false;
+  }
+  setInterval(() => { if (started && document.visibilityState === 'visible') checkBuild(); }, 15 * 60e3);
 
   const gate = document.getElementById('gate');
   const form = document.getElementById('gateForm');
@@ -10140,6 +10210,7 @@ const TA = (() => {
     live.offline = false;
     fire('thug:net');
     if (was) live.refreshClub().then(() => { if (live.has3() && keyOf()) live.refreshMe(); });
+    checkBuild();
   });
 
   // 화면이 다시 보일 때 클랜 기록(리그·클랜전)이 5분 넘게 묵었으면 새로 받음.
@@ -10147,6 +10218,7 @@ const TA = (() => {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible' || !started || live.offline) return;
     if (Date.now() - live.clubAt > 5 * 60e3) live.refreshClub();
+    if (Date.now() - verAt > 5 * 60e3) checkBuild();
     if (live.has3() && keyOf()) {
       const gap = live.who.state === 'pending' ? 15e3 : 5 * 60e3;
       if (Date.now() - meAt > gap) live.refreshMe();

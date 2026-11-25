@@ -1,5 +1,5 @@
 /* THUG 클랜 — 앱처럼 깔기 도우미. 화면 파일(쪽·그림·글꼴)만 기기에 저장해 두고, 기록(창고 요청)은 건드리지 않는다. */
-const VER = 'thug-01e0f769e73b';
+const VER = 'thug-5ec1c705b565';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VER).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -10,6 +10,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== location.origin) return; // 창고(Supabase) 요청은 그대로 통과
+  if (u.pathname.endsWith('/version.json')) return; // 새 판 확인: 저장하지 않고 늘 새로 받음
   const isPage = e.request.mode === 'navigate' || u.pathname.endsWith('/') || u.pathname.endsWith('.html');
   if (isPage) {
     // 쪽은 새것 먼저, 연결이 없으면 저장해 둔 것
