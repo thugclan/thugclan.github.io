@@ -42,7 +42,7 @@
 
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
-html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scrollbar-gutter: stable; } /* 화면을 옮길 때 스크롤 막대 때문에 좌우로 흔들리지 않게 */
 body {
   margin: 0;
   min-height: 100vh;
@@ -331,7 +331,7 @@ select.field option { background: #0a1530; color: var(--tx); }
 }
 
 .shell {
-  max-width: 1400px; margin: 0 auto;
+  max-width: 1432px; margin: 0 auto; /* 안쪽 폭 1400px: 머리 줄(.chan-in, .nav)과 좌우 끝을 맞춤 */
   padding: 16px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px));
 }
 @media (max-width: 699px) {
@@ -375,7 +375,7 @@ select.field option { background: #0a1530; color: var(--tx); }
   box-shadow: inset 2px 0 0 var(--edge-hi);
 }
 .mem-r.away, .row.away { color: var(--dim); }
-.mem-r.away canvas, .row.away canvas { opacity: 0.5; }
+/* 자리 비움 초상은 그림이 이미 회색이라 투명도를 더 걸지 않음(검수 2026-11-25: 1위 초상이 안 보이던 것) */
 .mem-n { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mem-a { font: var(--f-s); color: var(--sub); white-space: nowrap; }
@@ -506,7 +506,7 @@ select.field option { background: #0a1530; color: var(--tx); }
 .g-p.win .plink { color: #fff; }
 .g-p.me .plink { color: var(--sys); }
 .g-x { font: var(--f-s); color: var(--sub); }
-.pt-none { width: 16px; height: 16px; flex: none; background: repeating-linear-gradient(45deg, #17264a 0 2px, #0a1326 2px 4px); }
+.pt-none { width: 16px; height: 16px; flex: none; } /* 바깥 상대: 초상 자리만 비워 둠(빗금 네모는 깨진 그림처럼 보여 뺌) */
 .g-room { font: var(--f-s); color: var(--sub); margin-top: 6px; }
 
 /* ---------- 프로필 ---------- */
@@ -581,6 +581,7 @@ select.field option { background: #0a1530; color: var(--tx); }
   .prof-side { grid-column: 1; width: 100%; }
   .cell.fill2 { grid-column: 1 / -1; }
   .cells { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cw-cells > .cell:last-child { grid-column: 1 / -1; } /* 클랜전 전적 3칸: 넷째 자리에 빈 네모가 생기지 않게 */
   .vsr-i { grid-template-columns: 104px minmax(0, 1fr) 64px; }
   .pnl-b { padding: 14px 14px 16px; }
 }
@@ -617,6 +618,7 @@ select.field option { background: #0a1530; color: var(--tx); }
 .look { display: grid; gap: 18px; min-width: 0; }
 @media (min-width: 900px) { .look { grid-template-columns: minmax(330px, 380px) minmax(0, 1fr); align-items: start; } }
 .look-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 16px 0 4px; }
+.look-stage > .comm { align-self: center; } /* 말풍선 꼬리가 초상 가운데를 가리키게 */
 .bubble { position: relative; max-width: 100%; padding: 6px 12px; color: #0a1428; background: #e6f0ff; box-shadow: 0 0 0 2px #0a1428, 0 0 0 3px var(--edge-hi); overflow-wrap: anywhere; }
 .bubble::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 10px; height: 6px; margin-left: -5px; background: #e6f0ff; clip-path: polygon(0 0, 10px 0, 10px 2px, 8px 2px, 8px 4px, 6px 4px, 6px 6px, 4px 6px, 4px 4px, 2px 4px, 2px 2px, 0 2px); }
 .opt { border: 0; padding: 0; margin: 0 0 18px; min-width: 0; }
@@ -710,6 +712,7 @@ select.field option { background: #0a1530; color: var(--tx); }
 .sp { display: flex; flex-direction: column; gap: 8px; }
 .sp-i { display: grid; grid-template-columns: 112px minmax(40px, 1fr) auto; align-items: center; gap: 10px; min-height: 28px; }
 .sp-i.none { color: var(--dim); }
+.sp-i.none .wbar { background: var(--edge-dim); } /* 경기가 없으면 빨간 막대(승률 0%처럼 보임) 대신 빈 막대 */
 .sp-l { display: flex; align-items: center; gap: 4px; min-width: 0; white-space: nowrap; overflow: hidden; }
 .sp-v { text-align: right; white-space: nowrap; color: var(--sub); }
 .sp-v b { color: #fff; font-weight: 400; margin-right: 4px; }
@@ -3796,7 +3799,7 @@ const WR = (() => {
     const t = CL.totals();
     const decided = t.w + t.l;
     out.push(pnl('전체 전적', {},
-      h('div', { class: 'cells' },
+      h('div', { class: 'cells cw-cells' },
         h('div', { class: 'cell big' }, h('span', { class: 'cell-l' }, '전적'), h('span', { class: 'cell-v' }, h('span', { class: 'w' }, `${t.w}승`), ' ', h('span', { class: 'l' }, `${t.l}패`), t.d ? h('span', { class: 'c-dim' }, ` ${t.d}무`) : null), h('span', { class: 'cell-s' }, `클랜전 ${t.n}번`)),
         h('div', { class: 'cell big' }, h('span', { class: 'cell-l' }, '승률'), h('span', { class: 'cell-v' }, decided ? fmt.pct(t.w / decided) : '-'), h('span', { class: 'cell-s' }, t.d ? '무승부는 빼고 셈' : '')),
         h('div', { class: 'cell' }, h('span', { class: 'cell-l' }, '세트'), h('span', { class: 'cell-v' }, h('span', { class: 'w' }, `${t.sw}승`), ' ', h('span', { class: 'l' }, `${t.sl}패`)), h('span', { class: 'cell-s' }, `상대 클랜 ${CL.byOpp().length}곳`)))));
