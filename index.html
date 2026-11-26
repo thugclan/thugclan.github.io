@@ -3203,7 +3203,9 @@ const ME = (() => {
         h('p', { class: 'me-code', 'aria-label': `신청 번호 ${w.code || ''}` }, w.code || '----'),
         h('p', null, '카톡방에 아이디와 이 번호를 올려 주세요'),
         h('div', { class: 'btns' }, selfB, chk, cancel), msg,
-        h('p', { class: 'note' }, '운영진이 승인하면 이 화면이 저절로 바뀜'));
+        h('p', { class: 'note' }, '운영진이 승인하면 이 화면이 저절로 바뀜'),
+        // 운영진인데 이 기기에서 아직 운영 암호를 넣지 않은 사람이 승인하러 갈 길(클랜원에게는 암호 칸에서 막힘)
+        selfB ? null : h('p', { class: 'note' }, '운영진은 ', h('a', { class: 'plink', href: '#admin' }, '운영진 화면'), '에서 승인'));
     } else if (st === 'ok') {
       const p = person();
       const msg = h('p', { class: 'note', role: 'status' });
@@ -9986,7 +9988,7 @@ const TA = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "31c8b0e8d5"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "9660511f40"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
