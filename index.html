@@ -4477,7 +4477,7 @@ const V = (() => {
     loseL.addEventListener('input', keep);
     const save = h('button', { type: 'button', class: 'btn hot' }, '저장');
     const reset = h('button', { type: 'button', class: 'btn' }, '처음 모습으로');
-    const LOOK_MSG = { key: '본인 확인이 풀려 저장하지 못했습니다.', size: '꾸미기 내용이 너무 커서 저장하지 못했습니다.', pass: '입장 기록이 끝나 저장하지 못했습니다.' };
+    const LOOK_MSG = { key: '본인 확인이 끊겨 저장하지 못했습니다.', size: '꾸미기 내용이 너무 커서 저장하지 못했습니다.', pass: '입장 기록이 끝나 저장하지 못했습니다.' };
     const why = (r) => (!r || !r.reason || r.reason === 'net' ? '연결이 안 돼 저장하지 못했습니다.' : LOOK_MSG[r.reason] || '저장하지 못했습니다.');
     const lock = (on) => { for (const b of [save, reset]) { b.disabled = on; if (on) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); } };
     save.addEventListener('click', async () => {
@@ -9549,10 +9549,10 @@ const PO = (() => {
     len: '글은 200자까지입니다.',
     fast: '조금 뒤에 다시 보내 주세요.',
     same: '방금 같은 글을 올렸습니다.',
-    key: '본인 확인이 풀렸습니다.',
+    key: '본인 확인이 끊겼습니다.',
     pass: '입장 기록이 끝났습니다. 다시 들어와 주세요.',
   };
-  const DEL_MSG = { key: '본인 확인이 풀렸습니다.', admin: '운영진 입장이 끝났습니다.', mine: '내 글만 지울 수 있습니다.', pass: SEND_MSG.pass };
+  const DEL_MSG = { key: '본인 확인이 끊겼습니다.', admin: '운영진 입장이 끝났습니다.', mine: '내 글만 지울 수 있습니다.', pass: SEND_MSG.pass };
 
   const on = () => { try { return !!(LIVE && typeof LIVE.has3 === 'function' && LIVE.has3()); } catch { return false; } };
   const hasME = () => typeof ME !== 'undefined' && ME && typeof ME.state === 'function';
@@ -10292,7 +10292,7 @@ const TA = (() => {
     const also = [];
     if (LIVE && LIVE.isAdmin()) also.push('운영진 입장');
     if (typeof ME !== 'undefined' && ME.can() && ME.state() !== 'none') also.push('본인 확인');
-    const q = `나가면 이 기기의 입장 기록이 지워져 입장 암호를 다시 넣어야 합니다${also.length ? `(${also.join('·')}도 풀림)` : ''}. 나갈까요?`;
+    const q = `나가면 이 기기의 입장 기록이 지워져 입장 암호를 다시 넣어야 합니다${also.length ? `(${also.join('·')}도 지워짐)` : ''}. 나갈까요?`; // 11/27 '풀림'은 '켜짐'으로도 읽혀 바꿈
     let ok = true;
     try { ok = window.confirm(q); } catch { ok = true; }
     if (!ok) return;
@@ -10357,7 +10357,7 @@ const TA = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "c2102c32da"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "86e84ac5bf"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
@@ -10547,7 +10547,7 @@ const TA = (() => {
       }
       return r;
     },
-    // 이 기기의 본인 확인 풀기(신청 취소 포함): 창고에 알린 뒤(대기 줄은 지움, 확인된 줄은 끊음) 이 기기 열쇠를 지움.
+    // 이 기기의 본인 확인 취소(신청 취소 포함): 창고에 알린 뒤(대기 줄은 지움, 확인된 줄은 끊음) 이 기기 열쇠를 지움.
     // 연결이 안 되거나 실패해도 이 기기 열쇠는 지움. 본인 확인으로 받은 운영진 통행증도 함께 끝남. Promise
     async keyDrop() {
       await dropKey();
