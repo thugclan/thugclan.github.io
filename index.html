@@ -1776,6 +1776,19 @@ span.md-wrap > canvas.md {
   .chan-in:has(> .new-btn:not([hidden])) { grid-template-areas: "mark name adm out" "mark meta meta meta" "new new new new"; }
   .chan .new-btn { grid-area: new; margin-top: 8px; }
 }
+/* 확인됨 패널(11/27): 확인 끝 안내, '다른 기기에서도 쓰기' 옆 설명, 맨 아래 작은 '이 기기 본인 확인 취소'
+   (옛 '이 기기에서 풀기' 단추를 '켜기'로 알고 눌러 확인이 꺼진 일이 거듭됨) */
+.me-done { margin-top: 10px; font: var(--f-m); color: var(--win); }
+.note.me-done-s { margin-top: 0; }
+.me-more { align-items: center; }
+.me-more-s { font: var(--f-s); color: var(--sub); }
+.me-drop-r { margin-top: 22px; }
+.me-txt.me-drop { color: var(--dim); }
+.me-txt.me-drop:hover { color: var(--loss); }
+.me-txt.me-drop:disabled { text-decoration: none; cursor: default; }
+/* 운영진 화면 '거절·끊음' 목록 맨 위 안내(새 신청은 위 대기 신청에서) */
+.adm-gone .adm-gone-h { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+
 /* 0004 운영진 지정: 이름 옆 운영진·클랜 마스터 표시(운영진 화면 목록), 본인 확인 줄의 표시 */
 .adm-m-nr { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .adm-m-nr .ctag, .me-who .ctag { margin-left: 0; }
@@ -3170,7 +3183,7 @@ const ME = (() => {
         : r.reason === 'name' ? '아이디를 다시 골라 주세요.'
           : r.reason === 'pass' ? '입장 기록이 끝났습니다(나갔다가 다시 입장).'
             : r.reason === 'many' ? '기기가 너무 많습니다(한 사람 8개까지).'
-              : r.reason === 'key' ? '이 기기의 본인 확인이 풀렸습니다.'
+              : r.reason === 'key' ? '이 기기의 본인 확인이 끊겼습니다.'
                 : '하지 못했습니다.');
 
   function head(title, right) {
@@ -3266,20 +3279,25 @@ const ME = (() => {
         }
         msg.textContent = askWhy(r);
       });
-      const drop = h('button', { type: 'button', class: 'btn out' }, '이 기기에서 풀기');
+      // 11/27: 확인이 끝난 클랜원과 클랜 마스터가 옛 단추 '이 기기에서 풀기'를 '켜기'로 읽고 눌러 확인이 거듭 꺼짐(새 번호로 다시 신청).
+      // 확인 끝을 먼저 알리고, 끄는 길은 맨 아래 작은 글자 '이 기기 본인 확인 취소'로 옮김(누르면 한 번 더 물음)
+      const drop = h('button', { type: 'button', class: 'me-txt me-drop' }, '이 기기 본인 확인 취소');
       drop.addEventListener('click', () => {
         let yes = true;
-        try { yes = window.confirm('이 기기에서 본인 확인을 풀까요? 다시 쓰려면 다시 신청하거나 링크가 필요합니다.'); } catch { yes = true; }
-        if (yes) { drop.disabled = true; LIVE.keyDrop().then(() => app.toast('이 기기에서 본인 확인을 풀었습니다')); }
+        try { yes = window.confirm('확인이 끝났으면 누르지 마세요.\n\n이 기기의 본인 확인을 취소할까요? 취소하면 새로 신청해서 운영진 승인을 다시 받아야 합니다.'); } catch { yes = true; }
+        if (yes) { drop.disabled = true; LIVE.keyDrop().then(() => app.toast('이 기기의 본인 확인을 취소했습니다')); }
       });
       // 0004: 확인된 클랜 마스터·지정된 운영진은 이 기기가 암호 없이 운영진(live.js가 통행증을 저절로 받음)
       const role = LIVE.has4() ? w.role : null;
       kids.push(
         h('p', { class: 'me-who' }, p ? app.icon(p, 24) : null, h('span', { class: 'nm' }, `${shown(w.name)} 님으로 확인됨`), roleTag(role)),
+        h('p', { class: 'me-done' }, '본인 확인 끝 · 더 누를 것 없음'),
+        h('p', { class: 'note me-done-s' }, '이제 글쓰기와 꾸미기 공유 가능'),
         p ? null : h('p', { class: 'note' }, '명단에 없는 아이디(기록 수집 전)'),
         role ? h('p', { class: 'note' }, LIVE.isAdmin() ? '이 기기는 운영진 · ' : '운영진으로 지정됨 · ',
           h('a', { class: 'plink', href: '#admin' }, '운영진 화면'), LIVE.isAdmin() ? '' : '에서 들어가기') : null,
-        h('div', { class: 'btns' }, more, drop), msg, slot);
+        h('div', { class: 'btns me-more' }, more, h('span', { class: 'me-more-s' }, 'PC와 휴대폰을 함께 쓸 때만')), msg, slot,
+        h('p', { class: 'me-drop-r' }, drop));
     } else {
       if (st === 'off') kids.push(h('p', { class: 'me-who' }, h('span', { class: 'nm' }, shown(w.name)), h('span', { class: 'l' }, '승인되지 않았거나 운영진이 끊음')));
       kids.push(...askForm(app, off, st === 'off' ? '다시 신청' : '본인 확인 신청', st === 'off' ? w.name : null));
@@ -3349,16 +3367,20 @@ const ME = (() => {
   // #me 화면. 처음 화면으로 뜬 때(app.state.meFirst, main.js가 정함)는 '나중에 하기'와 '채널로 가기'를 더함
   function view(app) {
     const first = !!(app.state && app.state.meFirst) && can();
+    // 확인된 뒤에는 머리 글을 뺌('본인 확인부터 해 주세요'가 남아 아직 할 일이 있는 줄 알았음, 11/27). 확인 끝 안내는 패널에
     const title = h('header', { class: 'ptitle' }, h('h1', null, '본인 확인'),
-      h('p', null, first ? '본인 확인부터 해 주세요 (글쓰기와 꾸미기 공유에 필요)' : '꾸미기 공유와 방명록 쓰기에 필요'));
+      state() === 'ok' ? null : h('p', null, first ? '본인 확인부터 해 주세요 (글쓰기와 꾸미기 공유에 필요)' : '꾸미기 공유와 방명록 쓰기에 필요'));
     const back = (app.state && app.state.meBack) || 'channel'; // 처음에 가려던 화면(공유 링크로 들어온 때)
     const later = () => { store.set('thug.meLater', true); location.hash = back; };
     const foot = h('div', { class: 'me-foot' });
     const drawFoot = () => {
       const st = state();
+      const toBack = first && back !== 'channel';
+      // 확인된 뒤 갈 곳을 눈에 띄는 단추 하나로(보려던 화면이 있으면 그곳, 없으면 채널)
       foot.replaceChildren(...(st === 'ok' ? [h('div', { class: 'btns me-go' },
-        first && back !== 'channel' ? h('a', { class: 'btn hot', href: '#' + back }, '보려던 화면으로') : null,
-        h('a', { class: 'btn', href: '#look' }, '꾸미기'), h('a', { class: 'btn', href: '#channel' }, '채널'))]
+        h('a', { class: 'btn hot', href: '#' + (toBack ? back : 'channel') }, toBack ? '보려던 화면으로' : '채널로 가기'),
+        toBack ? h('a', { class: 'btn', href: '#channel' }, '채널') : null,
+        h('a', { class: 'btn', href: '#look' }, '꾸미기'))]
         : !first ? []
           : st === 'pending' ? [h('div', { class: 'btns me-go' }, h('a', { class: 'btn', href: '#' + back }, back === 'channel' ? '채널로 가기' : '보려던 화면으로'))]
             : [h('div', { class: 'btns me-go' }, h('button', { type: 'button', class: 'btn', onclick: later }, '나중에 하기')),
@@ -4753,12 +4775,16 @@ const AD = (() => {
 
     // 거절·끊음(최근 30일): 잘못 누른 것을 되돌릴 수 있게 접어 둠
     const gone = keys.filter((k) => k.state === 'off');
+    // 11/27: 본인이 확인을 취소하고 새로 신청한 사람의 옛 줄도 여기 들어옴. 그 줄을 다시 승인해도 그 사람 기기에는 열쇠가 없어 소용없음
+    // → 새 신청은 위 대기 신청의 새 번호를 승인하도록 안내
     const goneBox = gone.length ? h('details', { class: 'adm-gone' }, h('summary', null, `거절·끊음 ${gone.length}건(최근 30일)`),
+      h('p', { class: 'adm-help adm-gone-h' }, '새로 신청한 사람은 위 대기 신청의 새 번호를 승인'),
       h('ul', { class: 'adm-keys' }, gone.map((k) => {
         const lk = locked(k.name);
         const back = h('button', { type: 'button', class: 'btn sm', disabled: lk, title: lk ? LOCK : null }, '다시 승인');
         back.addEventListener('click', () => {
-          if (!ask(`${ME.shown(k.name)}의 이 기기를 다시 승인할까요?`)) return;
+          const what = k.via === 'link' ? '지난 링크를' : `지난 신청(번호 ${k.code || '----'})을`;
+          if (!ask(`${ME.shown(k.name)}의 ${what} 다시 승인할까요?\n\n본인이 새로 신청했으면 이것 말고 위 대기 신청의 새 번호를 승인해 주세요.`)) return;
           act(back, 'thug_key_set', { p_id: k.id, p_state: 'ok' }, () => app.toast(`다시 승인했습니다 · ${ME.shown(k.name)}`), okSt);
         });
         const t = atOf(k.at);
@@ -10331,7 +10357,7 @@ const TA = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "bf439c06a9"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "c2102c32da"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
