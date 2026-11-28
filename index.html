@@ -1893,6 +1893,89 @@ span.md-wrap > canvas.md {
   .cw-g .btn { justify-self: start; align-self: start; }
 }
 
+/* 소식지 'THUG 스포츠'(news.js, 전역 NS, 2026-11-28). 채널 맨 위 띠와 #news 화면. 색·글꼴은 style.css 토큰 */
+.nw-band { margin-bottom: 14px; }
+.nw-h {
+  display: flex; align-items: center; gap: 4px 10px; min-height: 30px; padding-right: 12px;
+  background: linear-gradient(90deg, rgba(255, 90, 42, 0.26), rgba(30, 70, 150, 0.12) 55%, transparent);
+  border-bottom: 1px solid var(--edge-dim);
+}
+.nw-mast { align-self: stretch; display: flex; align-items: center; padding: 0 12px 0 16px; font: var(--f-sb); color: #1d0800; background: var(--brand); white-space: nowrap; }
+.nw-date { font: var(--f-s); color: #fff; white-space: nowrap; }
+.nw-span { font: var(--f-s); color: var(--sys); white-space: nowrap; }
+.nw-all { margin-left: auto; }
+.nw-all-m { display: none; }
+.nw-b { display: grid; min-width: 0; }
+.nw-big {
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 12px;
+  min-width: 0; padding: 9px 14px; color: #fff; text-decoration: none;
+}
+.nw-big:hover { background: linear-gradient(90deg, rgba(80, 150, 255, 0.2), transparent); }
+.nw-big:hover .nw-tt { text-decoration: underline; text-underline-offset: 4px; }
+.nw-pic { display: grid; place-items: center; width: 64px; height: 64px; background: #040a16; box-shadow: inset 0 0 0 1px var(--edge-dim); }
+.nw-pic canvas.pt-icon { width: 64px; height: 64px; }
+.nw-pic .nw-logo { width: 52px; height: 52px; object-fit: contain; }
+.nw-pic.sm { width: 32px; height: 32px; }
+.nw-pic.sm canvas.pt-icon { width: 32px; height: 32px; }
+.nw-pic.sm .nw-logo { width: 26px; height: 26px; }
+.nw-bt { display: flex; flex-direction: column; min-width: 0; }
+.nw-tt { font: var(--f-h); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nw-sub { font: var(--f-s); color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nw-list { list-style: none; margin: 0; padding: 8px 14px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.nw-list a {
+  position: relative; display: block; padding-left: 14px; line-height: 26px;
+  color: var(--tx); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nw-list a::before { content: ""; position: absolute; left: 2px; top: 11px; width: 4px; height: 4px; background: var(--sys); }
+.nw-list a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.nw-list a[data-k="sum"] { color: var(--sub); }
+.nw-list a[data-k="sum"]::before { background: var(--dim); }
+
+@media (min-width: 760px) {
+  .nw-b { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+  .nw-list { border-left: 1px solid var(--edge-dim); }
+}
+/* PC: 띠 높이를 128px로 고정하고 그만큼(+ 아래 여백 14px) 세 칸 높이에서 뺌(채널이 화면 높이 안에 들어오게).
+   안내 줄이 있을 때(me.css: 한 줄 212px, 두 줄 259px)도 같은 만큼 더 뺌. 칸이 너무 낮아지지 않게 아래 끝은 340px */
+@media (min-width: 1000px) {
+  .lobby.has-news > .nw-band { height: 128px; }
+  .nw-band .nw-b { height: 96px; }
+  .lobby.has-news > .lobby-grid { height: clamp(340px, calc(100vh - 292px), 940px); height: clamp(340px, calc(100dvh - 292px), 940px); }
+  .lobby.has-news:has(> .me-bar:not([hidden])) > .lobby-grid { height: clamp(340px, calc(100vh - 354px), 940px); height: clamp(340px, calc(100dvh - 354px), 940px); }
+  .lobby.has-news:has(> .me-bar:not([hidden]) > .me-bar-r + .me-bar-r) > .lobby-grid { height: clamp(340px, calc(100vh - 401px), 940px); height: clamp(340px, calc(100dvh - 401px), 940px); }
+}
+/* 휴대폰: 큰 제목은 두 줄까지, 작은 제목은 한 줄씩 위아래로(누르기 쉽게 36px), '소식지 전체'는 맨 아래 */
+@media (max-width: 759px) {
+  .nw-tt { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+  .nw-big { padding: 10px 12px; }
+  .nw-list { padding: 4px 12px; border-top: 1px solid var(--edge-dim); }
+  .nw-list a { line-height: 36px; }
+  .nw-list a::before { top: 16px; }
+  .nw-h .nw-all { display: none; }
+  .nw-all-m { display: flex; align-items: center; justify-content: flex-end; min-height: 36px; padding: 0 14px; border-top: 1px solid var(--edge-dim); }
+}
+
+/* #news 화면 */
+.nw-page .nw-day .pnl-h h2 { white-space: nowrap; }
+.nw-rows { list-style: none; margin: 0; padding: 4px 0; }
+.nw-rows li + li { border-top: 1px solid var(--line); }
+.nw-r { display: grid; grid-template-columns: 32px minmax(0, 1fr); align-items: center; gap: 12px; padding: 10px 14px; color: var(--tx); text-decoration: none; }
+.nw-r:hover { background: linear-gradient(90deg, rgba(80, 150, 255, 0.2), rgba(80, 150, 255, 0.04)); box-shadow: inset 2px 0 0 var(--edge-hi); }
+.nw-rt { display: flex; flex-direction: column; min-width: 0; }
+.nw-r1 { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.nw-ti { min-width: 0; color: #fff; }
+.nw-r .nw-sub { white-space: normal; }
+.nw-k { flex: none; padding: 0 4px; font: var(--f-sb); line-height: 18px; color: #061022; background: var(--k-lad); }
+.nw-k.k-war { background: var(--brand); color: #1d0800; }
+.nw-k.k-league { background: var(--sys); color: #1d1300; }
+.nw-k.k-upset { background: #ff9a5e; color: #1d0800; }
+.nw-k.k-streak, .nw-k.k-grind { background: var(--win); color: #04210c; }
+.nw-k.k-rival { background: var(--k-in); }
+.nw-btns { margin-top: 0; }
+@media (max-width: 699px) {
+  .nw-btns .btn { flex: 1 1 auto; }
+}
+
 </style>
 <div class="sky" aria-hidden="true"></div>
 <div id="gate" class="gate" hidden>
@@ -3877,6 +3960,10 @@ const V = (() => {
     let meBar = null;
     if (typeof ME !== 'undefined' && ME.bar) { try { meBar = ME.bar(app); } catch (e) { console.error(e); meBar = null; } }
     if (meBar) root.append(meBar);
+    // 소식지 띠 'THUG 스포츠'(news.js): 안내 줄 아래, 세 칸(휴대폰은 전환 단추) 위. 실패하면 없이
+    let band = null;
+    if (typeof NS !== 'undefined' && NS.band) { try { band = NS.band(app); } catch (e) { console.error(e); band = null; } }
+    if (band) { root.append(band); root.classList.add('has-news'); }
 
     root.append(sw, h('div', { class: 'lobby-grid' },
       h('div', { class: 'col col-mem' }, memPanel),
@@ -9978,6 +10065,423 @@ const TA = (() => {
   return { panel };
 })();
 
+/* THUG 클랜 — 소식지 'THUG 스포츠'(2026-11-28, 원장님 "스포츠 뉴스처럼 소식지가 메인 페이지에", A안·스포츠 신문 말투).
+   모은 기록(DB·CL·LG)에서 기사를 저절로 만든다. 지어내지 않고 숫자는 기록 그대로 쓴다. 묶는 순서는 cards.js 뒤, main.js 앞.
+   - NS.band(app)                  채널 맨 위 띠: 큰 제목 1 + 작은 제목 3. 최근 24시간 → 모자라면 48시간·7일. 기사가 없으면 요약 한 줄
+   - NS.view(app)                  #news 화면: 최근 7일(한국 날짜) 날짜별 기사(하루 8개까지), 맨 아래 주간 소식(#weekly)
+   - NS.articles(start, end, opt)  그 기간 기사(고른 차례, 제목까지 붙음). opt.latest: 기간 끝이 지금, opt.band: 띠(클랜전은 최근 3일), opt.max: 개수, opt.fresh: 최근 것 덤 점수
+   기사 = { k: 종류, s: 점수, t: 일이 난 시각, title, sub, href, who: [사람 id], pic: 사람 | 'clan' }
+   종류와 점수(큰 제목은 점수가 가장 높은 것):
+     war 클랜전(최근 3일 안 경기일, 100~108) · league 리그(우승 95, 결승 대진 80, 4강 70, 그 밖 대진 55, 결과 50, 개막 45, 풀리그 진행 45)
+     upset 이변(래더 또는 내전 점수가 150점 넘게 낮은 쪽이 이긴 내전, 80~) · top 래더 1위(30~40, 기간 끝이 지금일 때만)
+     peak 래더 최고점 경신(62~) · streak 내전·래더 3연승 이상(56~) · grind 많이 한 사람(하루 8판 이상, 44~)
+     rival 오래 붙은 두 사람(내전 6판 이상, 승률 35~65%)의 맞대결(52~)
+   래더 티어 오름·새 1위는 만들지 않음: 지난 래더 점수 기록이 없음(아래 '래더 점수' 주석)
+   한 사람은 기사 2개까지(두 번째는 20점 뒤로), 같은 종류는 하나 고를 때마다 25점씩 뒤로 밀림.
+   제목 틀: 종류마다 2~3가지. 고른 차례대로 '날짜 + 종류'로 정한 자리에서 돌려 씀(같은 날이면 늘 같은 제목, 무작위 아님) */
+const NS = (() => {
+  const DAY = DB.DAY, KST = 9 * 3600e3, NOW = DB.NOW, HOUR = 3600e3;
+  const UPSET = DB.CFG.upset; // 이변 기준 점수 차(model.js와 같음)
+  // 이름은 앞의 thug_를 떼고 씀. 떼면 숫자만 남는 아이디(thug_14123)는 '14판'처럼 숫자와 헷갈려 그대로 둠
+  const strip = (n) => { const s0 = String(n == null ? '' : n), s = s0.replace(/^thug_/i, ''); return !s || /^\d+$/.test(s) ? s0 : s; };
+  const nm = (p) => (p ? (/^\d+$/.test(p.short) ? p.name : p.short) : '?');
+  const sideNm = (x) => { const p = x && x.id ? DB.byId.get(x.id) : null; return p ? nm(p) : strip(x && x.n); };
+  const ok = (p) => !!p && p.ranked !== false;
+  const dayStart = (t) => Math.floor((t + KST) / DAY) * DAY - KST; // 한국 날짜 0시
+  const hasCL = () => typeof CL !== 'undefined' && CL && typeof CL.wars === 'function';
+  const hasLG = () => typeof LG !== 'undefined' && LG && typeof LG.list === 'function';
+  const pairKey = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
+  const wl = (w, l) => `${w}승 ${l}패`;
+  const jo = (w, pair) => (hasLG() && LG.josa ? LG.josa(w, pair) : w + pair.split('/')[1]); // 받침에 맞는 조사(league.js)
+  const TIERS = 'SABCDEF';
+
+  /* ---------- 래더 점수 ---------- */
+  // 래더 점수는 지금 점수(p.mmr.cur, 프로필·서열과 같은 값)만 씀. 경기마다 붙은 g.mm(RepMastered MMInfo)은
+  // 클랜원 자신의 점수 흐름과 맞지 않아(같은 계정이 몇 분 사이 1592 → 1785) 지난 점수·티어 변화를 셀 수 없음(2026-11-28 확인)
+  const ladNow = (p) => (p && p.mmr ? { v: p.mmr.cur.v, t: p.mmr.cur.t } : null);
+
+  /* ---------- 기간 안 경기 ---------- */
+  const one = (g) => g.winner >= 0 && g.p.length === 2;
+  const sideOf = (g, id) => g.p.findIndex((x) => x.id === id);
+  const inW = (W, t) => t >= W.start && t < W.end;
+  // 사람의 1:1 경기(승패가 난 것, 새것 먼저). kind: 'internal' | 'ladder' | 없으면 모두
+  function gamesOf(p, W, kind) {
+    return (DB.byPerson.get(p.id) || []).filter((g) => one(g) && (!W || inW(W, g.time)) && (!kind || (kind === 'internal' ? g.internal : g.kind === kind))
+      && g.p[0].id !== g.p[1].id).sort((a, b) => b.time - a.time);
+  }
+  const record = (p, list) => { let w = 0; for (const g of list) if (g.winner === sideOf(g, p.id)) w++; return { n: list.length, w, l: list.length - w }; };
+
+  /* ---------- 제목 틀(종류마다 2~3가지). v: 기사마다 넣을 값 ---------- */
+  const T = {
+    warW: [(v) => `THUG, ${v.opp} 꺾고 ${v.sc} 승리`, (v) => `클랜전 승리! THUG, ${v.opp}전 ${v.sc}`, (v) => `THUG ${v.sc} 승리, ${v.opp}전 승전보`],
+    warL1: [(v) => `THUG, ${v.opp}에 ${v.sc} 석패`, (v) => `접전 끝 ${v.opp}전 ${v.sc} 석패`],
+    warL: [(v) => `THUG, ${v.opp}전 ${v.sc} 패배`, (v) => `${v.opp}전 ${v.sc}, 다음 클랜전 기약`],
+    warD: [(v) => `THUG-${v.opp} ${v.sc} 무승부`, (v) => `${v.opp}전 ${v.sc}, 승부 못 가려`],
+    champ: [(v) => `${v.c}, ${v.lg} 우승`, (v) => `${v.c} ${v.lg} 정상 등극`, (v) => `${v.lg} 우승은 ${v.c}`],
+    final: [(v) => `${v.lg} 결승, ${v.a} vs ${v.b}`, (v) => `결승 대진 확정, ${v.a}-${v.b}`],
+    stage: [(v) => `${v.lg} ${v.rd} 확정`, (v) => `${v.rd} 대진 완성, ${v.lg}`],
+    open: [(v) => `${v.lg} ${v.rd} 대진`, (v) => `${v.lg} 개막, ${v.rd} 대진 공개`],
+    adv: [(v) => `${v.w}, ${v.lg} ${v.next} 진출`, (v) => `${v.lg} ${v.rd}, ${v.w} 승리`],
+    rr: [(v) => `${v.lg} ${v.done}/${v.total}경기 진행`, (v) => `${v.lg}, ${v.done}경기 치러`],
+    upL: [(v) => `이변! ${v.w}, ${v.lv}점 ${v.l} 잡았다`, (v) => `${v.w}, ${v.d}점 차 넘어 ${v.l} 격파`, (v) => `${v.w}의 반란, ${v.lv}점 ${v.l} 상대 ${v.ww}승`],
+    upE: [(v) => `이변! ${v.w}, 내전 ${v.lv}점 ${v.l} 잡았다`, (v) => `${v.w}, 내전 점수 ${v.d}점 차 넘어 ${v.l} 격파`, (v) => `${v.w}의 반란, 내전 ${v.lv}점 ${v.l} 꺾어`],
+    top: [(v) => `본좌 ${v.p}, 래더 ${v.v}점으로 1위`, (v) => `래더 1위는 ${v.p}, ${v.v}점`],
+    peak: [(v) => `${v.p}, 래더 최고점 ${v.v}점 경신`, (v) => `${v.p} 래더 ${v.v}점, 최고 기록`, (v) => `최고점 ${v.v}점 찍은 ${v.p}`],
+    stI: [(v) => `${v.p}, 내전 ${v.n}연승 질주`, (v) => `${v.p} 내전 ${v.n}연승 행진`, (v) => `내전 ${v.n}연승, ${v.p} 거침없다`],
+    stL: [(v) => `${v.p}, 래더 ${v.n}연승 질주`, (v) => `${v.p} 래더 ${v.n}연승 행진`],
+    grind: [(v) => `${v.p} ${v.span} ${v.n}판 강행군, ${v.r}`, (v) => `${v.span} ${v.n}판 뛴 ${v.p}, ${v.r}`, (v) => `${v.p}, ${v.span} ${v.n}판 소화하며 ${v.r}`],
+    rival: [(v) => `${v.a}-${v.b} 또 붙었다, 통산 ${v.ta}:${v.tb}`, (v) => `숙적 ${v.a}·${v.b}, 이번엔 ${v.x}:${v.y}`, (v) => `${v.a} vs ${v.b}, 상대 전적 ${v.ta}승 ${v.tb}패`],
+  };
+
+  /* ---------- 기사 만들기 ---------- */
+  const art = (k, s, t, tt, v, sub, href, who, pic) => ({ k, s, t, tt, v, sub, href, who: who.filter(Boolean), pic });
+
+  function wars(W, out) {
+    if (!hasCL() || !LIVE) return;
+    let list = [];
+    try { list = CL.wars(); } catch (e) { console.error(e); return; }
+    const from = dayStart(NOW) - 3 * DAY; // 띠는 기간과 상관없이 최근 3일 안 클랜전(경기일 기준), #news는 그 날짜에
+    for (const w of list) {
+      if (W.band ? dayStart(w.t) < from || w.t >= W.end : !inW(W, w.t)) continue;
+      const sc = `${w.our}:${w.their}`, opp = w.opp;
+      const tt = w.result === 'w' ? T.warW : w.result === 'd' ? T.warD : w.their - w.our === 1 ? T.warL1 : T.warL;
+      const won = w.sets.filter((x) => x.win).map((x) => (x.p ? nm(x.p) : strip(x.name)));
+      const sub = `${fmt.date(w.on)} 클랜전` + (w.sets.length ? ` · 세트 ${wl(won.length, w.sets.length - won.length)}` + (won.length ? ` · 승리 ${won.slice(0, 3).join(', ')}` : '') : '');
+      out.push(art('war', 100 + (w.result === 'w' ? 8 : 0), w.t, tt, { opp, sc }, sub, '#war--' + w.id, [], 'clan'));
+    }
+  }
+
+  // 리그: 한 리그에서 기사 하나(우승 > 결승 대진 > 다음 대진 > 최근 결과 > 개막)
+  function leagues(W, out) {
+    if (!hasLG()) return;
+    let list = [];
+    try { list = LG.list() || []; } catch (e) { console.error(e); return; }
+    for (const lg of list) {
+      if (!lg || lg.example || lg.hidden || lg._bad) continue;
+      try { const a = leagueArt(lg, W); if (a) out.push(a); } catch (e) { console.error('소식지 리그', lg.id, e); }
+    }
+  }
+  const isBr = (lg) => lg.kind === 'tour' || (lg.kind === 'team' && lg.tfmt === 'tour');
+  const entP = (lg, ix) => { const e = lg.ents && lg.ents[ix]; return e && e.id ? DB.byId.get(e.id) || null : null; };
+  const entNm = (lg, ix) => { const p = entP(lg, ix); return p ? nm(p) : strip(lg.ents && lg.ents[ix] ? lg.ents[ix].name : '?'); };
+  const sideName = (lg, i) => (lg.kind === 'team' ? (lg.teams[i] ? lg.teams[i].name : '?') : entNm(lg, i));
+  const sidePeople = (lg, i) => (lg.kind === 'team' ? ((lg.teams[i] && lg.teams[i].members) || []).map((e) => entP(lg, e)) : [entP(lg, i)]).filter(Boolean);
+  const matchAt = (m) => { if (!m || m.st !== 'done') return 0; if (m.tm) { let t = 0; for (const x of m.tm.sets || []) t = Math.max(t, x.at || 0); return t; } return (m.res && m.res.at) || 0; };
+  const scoreLine = (lg, m) => { const aw = m.winner === m.a; const W0 = aw ? m.a : m.b, L0 = aw ? m.b : m.a; const x = aw ? m.res.a : m.res.b, y = aw ? m.res.b : m.res.a; return `${sideName(lg, W0)} ${x}:${y} ${sideName(lg, L0)}`; };
+  function leagueArt(lg, W) {
+    const name = lg.name;
+    const aw = LG._awards ? LG._awards(lg) : null;
+    if (aw && inW(W, aw.date)) {
+      const golds = aw.list.filter((x) => x.kind === 'gold');
+      if (golds.length) {
+        const team = golds[0].team;
+        const c = lg.kind === 'team' || (lg.kind === 'past' && golds.length > 1) ? (team || golds.map((x) => entNm(lg, x.ix)).join('·')) : entNm(lg, golds[0].ix);
+        const ppl = golds.map((x) => entP(lg, x.ix)).filter(Boolean);
+        let sub = '';
+        if (isBr(lg)) { const rs = LG._bracket(lg); const f = rs[rs.length - 1][0]; if (f && f.res) sub = `결승 ${scoreLine(lg, f)}`; }
+        if (!sub) {
+          const nxt = (kind, label) => { const xs = aw.list.filter((x) => x.kind === kind); return xs.length ? `${label} ${xs[0].team && lg.kind !== 'past' ? xs[0].team : xs.map((x) => entNm(lg, x.ix)).join(', ')}` : null; };
+          sub = [nxt('silver', '2위'), nxt('bronze', '3위')].filter(Boolean).join(' · ') || (lg.kind === 'past' ? '지난 리그 순위' : '리그 끝');
+        }
+        return art('league', 95, aw.date, T.champ, { c, lg: name }, sub, '#league--' + lg.id, ppl.length <= 2 ? ppl.map((p) => p.id) : [], ppl.length === 1 ? ppl[0] : 'clan');
+      }
+    }
+    if (lg.kind === 'past') return null;
+    if (isBr(lg)) {
+      const rs = LG._bracket(lg);
+      const all = rs.flat().concat(rs.p3 ? [rs.p3] : []);
+      const fin = rs[rs.length - 1][0];
+      if (fin.st === 'done') return null; // 우승은 위에서(메달이 정해진 날)
+      const cur = rs.findIndex((ms) => ms.some((m) => m.st !== 'done' && m.st !== 'bye'));
+      const prevAt = (r) => (r <= 0 ? lg.created || 0 : Math.max(0, ...rs[r - 1].map(matchAt)));
+      const pairs = (ms) => ms.filter((m) => m.st !== 'bye' && m.a >= 0 && m.b >= 0).map((m) => `${sideName(lg, m.a)} vs ${sideName(lg, m.b)}`);
+      const pp = (ms) => ms.flatMap((m) => [...(m.a >= 0 ? sidePeople(lg, m.a) : []), ...(m.b >= 0 ? sidePeople(lg, m.b) : [])]);
+      if (cur >= 0) {
+        const ms = rs[cur];
+        const ready = !ms[0].undrawn && ms.every((m) => m.st === 'bye' || (m.a != null && m.a >= 0 && m.b != null && m.b >= 0));
+        const t = prevAt(cur);
+        if (ready && inW(W, t)) {
+          const rd = ms[0].round;
+          const last = cur > 0 ? rs[cur - 1].filter((m) => m.st === 'done' && m.res).sort((a, b) => matchAt(b) - matchAt(a))[0] : null;
+          if (rd === '결승') {
+            const m = ms[0];
+            const ppl = pp(ms);
+            return art('league', 80, t, T.final, { lg: name, a: sideName(lg, m.a), b: sideName(lg, m.b) }, last ? `${last.round} ${scoreLine(lg, last)}` : name, '#league--' + lg.id, ppl.length <= 2 ? ppl.map((p) => p.id) : [], 'clan');
+          }
+          const ps = pairs(ms);
+          const sub = ps.slice(0, 2).join(', ') + (ps.length > 2 ? ` 외 ${ps.length - 2}경기` : '');
+          if (cur === 0) return art('league', 45, t, T.open, { lg: name, rd }, sub, '#league--' + lg.id, [], 'clan');
+          return art('league', rd === '4강' ? 70 : 55, t, T.stage, { lg: name, rd }, sub, '#league--' + lg.id, [], 'clan');
+        }
+      }
+      const done = all.filter((m) => m.st === 'done' && m.res && inW(W, matchAt(m))).sort((a, b) => matchAt(b) - matchAt(a));
+      if (done.length) {
+        const m = done[0];
+        const next = m.third ? null : rs[m.r + 1] ? rs[m.r + 1][0].round : null;
+        const ppl = sidePeople(lg, m.winner);
+        const v = { lg: name, w: sideName(lg, m.winner), rd: m.round, next: next || '다음 경기' };
+        return art('league', 50, matchAt(m), next ? T.adv : [T.adv[1]], v, `${m.round} ${scoreLine(lg, m)}`, '#league--' + lg.id, ppl.length === 1 ? [ppl[0].id] : [], ppl.length === 1 ? ppl[0] : 'clan');
+      }
+      return null;
+    }
+    // 풀리그·팀 풀리그: 기간 안에 결과가 들어갔으면 진행 기사
+    const times = [];
+    for (const r of Object.values(lg.res || {})) if (r && r.at) times.push(r.at);
+    for (const m of Object.values(lg.tres || {})) for (const s of (m && m.sets) || []) if (s && s.at) times.push(s.at);
+    const tin = times.filter((t) => inW(W, t));
+    if (!tin.length) return null;
+    const pr = LG._progress ? LG._progress(lg) : { done: 0, total: 0 };
+    if (!pr.total) return null;
+    let sub = lg.kind === 'team' ? '팀리그' : '풀리그';
+    try {
+      if (typeof CD !== 'undefined' && CD._leagueState) {
+        const st = CD._leagueState(lg);
+        const r0 = st.table && st.table[0];
+        if (r0 && r0.side) sub = `선두 ${r0.side.p ? nm(r0.side.p) : strip(r0.side.name)} ${wl(r0.w, r0.l)}`;
+      }
+    } catch (e) { console.error(e); }
+    return art('league', 45, Math.max(...tin), T.rr, { lg: name, done: pr.done, total: pr.total }, sub, '#league--' + lg.id, [], 'clan');
+  }
+
+  // 이변: 기간 안 내전에서 점수가 150점 넘게 낮은 쪽이 이김.
+  //   내전 점수(그 경기 직전, 전적 화면의 '이변' 표시와 같음)를 먼저 봄. 래더 점수는 지금 점수밖에 없어 최근 3일 안 경기에만,
+  //   그리고 내전 점수로는 이긴 쪽이 150점 넘게 앞섰던 판은 빼고 씀(래더와 내전 실력이 다른 사람이 날마다 '이변'으로 나오지 않게)
+  function upsets(W, out, taken) {
+    const pairs = new Map();
+    for (const g of DB.games) {
+      if (!g.internal || g.winner < 0 || !inW(W, g.time)) continue;
+      const Wp = DB.byId.get(g.p[g.winner].id), Lp = DB.byId.get(g.p[1 - g.winner].id);
+      if (!ok(Wp) || !Lp) continue;
+      const lw = ladNow(Wp), ll = ladNow(Lp);
+      const eW = g.elo ? g.elo.before[g.winner] : null, eL = g.elo ? g.elo.before[1 - g.winner] : null;
+      let hit = null;
+      if (g.upset && g.elo) hit = { by: 'elo', wv: eW, lv: eL };
+      else if (lw && ll && ll.v - lw.v > UPSET && g.time >= NOW - 3 * DAY && !(g.elo && eW - eL > UPSET)) hit = { by: 'lad', wv: lw.v, lv: ll.v };
+      if (!hit) continue;
+      const key = Wp.id + '>' + Lp.id;
+      const e = pairs.get(key);
+      if (!e || g.time > e.t) pairs.set(key, { W: Wp, L: Lp, t: g.time, hit });
+    }
+    for (const e of pairs.values()) {
+      const between = DB.games.filter((g) => g.internal && g.winner >= 0 && inW(W, g.time) && g.p.some((x) => x.id === e.W.id) && g.p.some((x) => x.id === e.L.id));
+      const ww = between.filter((g) => g.p[g.winner].id === e.W.id).length, n = between.length;
+      const d = e.hit.lv - e.hit.wv;
+      const sub = `내전 ${n === 1 ? '단판 승리' : ww === n ? `${n}전 전승` : `${n}판 ${ww}승`} · ${e.hit.by === 'lad' ? '지금 래더' : '내전'} 점수 차 ${d}점`; // 래더는 지금 점수뿐(경기 때 점수 기록 없음)
+      const s = 80 + Math.min(15, Math.floor(d / 20)) + (ww * 2 >= n ? 5 : -15);
+      out.push(art('upset', s, e.t, e.hit.by === 'lad' ? T.upL : T.upE, { w: nm(e.W), l: nm(e.L), lv: e.hit.lv, d, ww }, sub, `#duel--${e.W.id}--${e.L.id}`, [e.W.id, e.L.id], e.W));
+      taken.add(pairKey(e.W.id, e.L.id));
+    }
+  }
+
+  // 래더 1위(본좌, 서열 화면과 같은 차례): 기간 끝이 지금일 때만. 예전 1위를 알 수 없어 '새 1위'는 만들지 않음
+  function top(W, out) {
+    if (!W.latest) return;
+    const p = DB.ladder[0], q = DB.ladder[1];
+    if (!p) return;
+    const lad = record(p, gamesOf(p, W, 'ladder'));
+    const sub = (lad.n ? `래더 ${lad.n}판 ${wl(lad.w, lad.l)}` : `래더 ${p.mmr.cur.t}티어`) + (q ? ` · 2위 ${jo(nm(q), '과/와')} ${p.mmr.cur.v - q.mmr.cur.v}점 차` : '');
+    out.push(art('top', 30 + (lad.n ? 10 : 0), W.end - 1, T.top, { p: nm(p), v: p.mmr.cur.v }, sub, '#p--' + p.id, [p.id], p));
+  }
+
+  // 래더 최고점: 지금 점수가 최고 점수와 같고(가장 낮던 점수보다 높음) 마지막 래더 경기가 기간 안의 승리 → 그 승리로 최고점을 새로 씀
+  function peaks(W, out) {
+    for (const p of DB.ranked) {
+      if (!p.mmr || p.mmr.cur.v !== p.mmr.max.v || p.mmr.cur.v <= p.mmr.min.v) continue;
+      const lg = gamesOf(p, null, 'ladder')[0];
+      if (!lg || !inW(W, lg.time) || lg.winner !== sideOf(lg, p.id)) continue;
+      const r = record(p, gamesOf(p, W, 'ladder'));
+      const ti = TIERS.indexOf(p.mmr.cur.t);
+      out.push(art('peak', 62 + Math.max(0, 4 - ti) * 3, lg.time, T.peak, { p: nm(p), v: p.mmr.cur.v, t: p.mmr.cur.t },
+        `래더 ${p.mmr.cur.t}티어 · ${r.n}판 ${wl(r.w, r.l)}`, '#p--' + p.id, [p.id], p));
+    }
+  }
+
+  // 연승: 기간 끝까지 이어진 내전·래더 연승(3연승 이상, 마지막 승리가 기간 안)
+  function streaks(W, out) {
+    for (const p of DB.ranked) {
+      for (const kind of ['internal', 'ladder']) {
+        const list = gamesOf(p, { start: -Infinity, end: W.end }, kind);
+        let n = 0, last = 0;
+        const opps = [];
+        for (const g of list) { const i = sideOf(g, p.id); if (g.winner !== i) break; n++; if (!last) last = g.time; opps.push(g.p[1 - i]); }
+        if (n < 3 || !inW(W, last)) continue;
+        let sub;
+        if (kind === 'internal') {
+          const names = [...new Set(opps.map(sideNm))];
+          sub = `꺾은 상대 ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` 외 ${names.length - 3}명` : ''}`;
+        } else {
+          const s = ladNow(p);
+          sub = `래더 ${n}연승` + (s ? ` · 지금 ${s.t}티어 ${s.v}점` : '');
+        }
+        out.push(art('streak', 56 + Math.min(20, 4 * n), last, kind === 'internal' ? T.stI : T.stL, { p: nm(p), n }, sub, '#p--' + p.id, [p.id], p));
+      }
+    }
+  }
+
+  // 많이 한 사람: 기간 안 1:1 경기(하루 8판, 이틀 12판, 7일 20판 이상)
+  function grind(W, out) {
+    const span = (W.end - W.start) / DAY;
+    const need = span <= 1.01 ? 8 : span <= 2.01 ? 12 : 20;
+    const lbl = span <= 1.01 ? '하루' : span <= 2.01 ? '이틀' : `${Math.round(span)}일`;
+    for (const p of DB.ranked) {
+      const list = gamesOf(p, W);
+      if (list.length < need) continue;
+      const r = record(p, list);
+      const nl = list.filter((g) => g.kind === 'ladder').length, ni = list.filter((g) => g.kind === 'internal').length, nr = list.length - ni - nl;
+      const sub = [ni ? `내전 ${ni}판` : null, nl ? `래더 ${nl}판` : null, nr ? `방 ${nr}판` : null].filter(Boolean).join(' · ');
+      out.push(art('grind', 44 + Math.min(16, list.length), list[0].time, T.grind, { p: nm(p), n: list.length, span: lbl, r: wl(r.w, r.l) }, sub, '#p--' + p.id, [p.id], p));
+    }
+  }
+
+  // 맞대결: 통산 내전 6판 이상, 승률 35~65%인 두 사람이 기간 안에 다시 붙음
+  function rivals(W, out, taken) {
+    const seen = new Map();
+    for (const g of DB.games) {
+      if (!g.internal || g.winner < 0 || !inW(W, g.time)) continue;
+      const k = pairKey(g.p[0].id, g.p[1].id);
+      const e = seen.get(k) || seen.set(k, { a: g.p[0].id, b: g.p[1].id, w: {}, t: 0, n: 0 }).get(k);
+      const wid = g.p[g.winner].id;
+      e.w[wid] = (e.w[wid] || 0) + 1; e.n++; e.t = Math.max(e.t, g.time);
+    }
+    for (const [k, e] of seen) {
+      if (taken.has(k)) continue;
+      const A0 = DB.byId.get(e.a), B0 = DB.byId.get(e.b);
+      if (!ok(A0) || !ok(B0)) continue;
+      // 이번에 더 많이 이긴 쪽을 앞에
+      const [A, B] = (e.w[e.b] || 0) > (e.w[e.a] || 0) ? [B0, A0] : [A0, B0];
+      const v = DB.vs(A.id, B.id), N = v.aw + v.bw;
+      if (N < 6 || Math.min(v.aw, v.bw) / N < 0.35) continue;
+      const x = e.w[A.id] || 0, y = e.w[B.id] || 0;
+      out.push(art('rival', 52 + Math.min(10, Math.floor(N / 2)), e.t, T.rival, { a: nm(A), b: nm(B), x, y, ta: v.aw, tb: v.bw },
+        `이번 ${e.n}판 ${x}:${y} · 통산 ${N}판 ${v.aw}:${v.bw}`, `#duel--${A.id}--${B.id}`, [A.id, B.id], A));
+    }
+  }
+
+  /* ---------- 고르기 ---------- */
+  const CACHE = new Map();
+  function articles(start, end, opt = {}) {
+    const key = [start, end, opt.latest ? 1 : 0, opt.band ? 1 : 0, opt.max || 0, opt.fresh ? 1 : 0, NOW, clubKey()].join('|');
+    if (CACHE.has(key)) return CACHE.get(key);
+    const W = { start, end, latest: !!opt.latest, band: !!opt.band };
+    const all = [];
+    const taken = new Set();
+    for (const f of [wars, leagues, (w, o) => upsets(w, o, taken), top, peaks, streaks, grind, (w, o) => rivals(w, o, taken)]) {
+      try { f(W, all); } catch (e) { console.error('소식지 기사', e); }
+    }
+    // 띠(기간을 넓혔을 때): 최근 것에 덤 점수
+    if (opt.fresh) for (const a of all) a.s += a.t >= NOW - DAY ? 12 : a.t >= NOW - 2 * DAY ? 6 : 0;
+    const pool = all.slice();
+    const out = [], per = new Map(), kinds = new Map();
+    const max = opt.max || 8;
+    while (pool.length && out.length < max) {
+      let bi = -1, bs = -Infinity;
+      for (let i = 0; i < pool.length; i++) {
+        const a = pool[i];
+        if (a.who.some((id) => (per.get(id) || 0) >= 2)) continue;
+        const s = a.s - 25 * (kinds.get(a.k) || 0) - 20 * Math.max(0, ...a.who.map((id) => per.get(id) || 0)); // 같은 종류·같은 사람은 뒤로
+        if (s > bs || (s === bs && a.t > pool[bi].t)) { bs = s; bi = i; }
+      }
+      if (bi < 0) break;
+      const a = pool.splice(bi, 1)[0];
+      for (const id of a.who) per.set(id, (per.get(id) || 0) + 1);
+      kinds.set(a.k, (kinds.get(a.k) || 0) + 1);
+      out.push(a);
+    }
+    // 제목: 고른 차례대로 같은 종류 안에서 틀을 돌려 씀(래더·내전 이변처럼 틀 묶음이 둘이어도 종류가 같으면 이어서). 시작 자리는 날짜와 종류로 정함
+    const seed = fmt.dayKey(end - 1);
+    const used = new Map();
+    for (const a of out) {
+      const id = a.k;
+      const n = used.get(id) || 0;
+      used.set(id, n + 1);
+      a.title = a.tt[(UT.hash(id + '|' + seed) + n) % a.tt.length](a.v);
+    }
+    if (CACHE.size > 40) CACHE.clear();
+    CACHE.set(key, out);
+    return out;
+  }
+  const clubKey = () => { try { const c = LIVE && LIVE.club; return c ? (c.at || '') + '/' + ((c.wars || []).length) + '/' + ((c.leagues || []).length) : ''; } catch (e) { return ''; } };
+  if (typeof window !== 'undefined') window.addEventListener('thug:club', () => CACHE.clear());
+
+  // 기간 안 경기 수(요약 한 줄)
+  function counts(start, end) {
+    let lad = 0, inn = 0;
+    for (const g of DB.games) { if (g.time < start || g.time >= end) continue; if (g.kind === 'ladder') lad++; else if (g.kind === 'internal') inn++; } // 채널 소식의 [래더]·[내전] 표시와 같은 구분
+    return { lad, inn };
+  }
+  const sumText = (label, c) => `${label} THUG: 래더 ${c.lad}판 · 내전 ${c.inn}판`;
+
+  /* ---------- 그리기 ---------- */
+  function picOf(app, a, size) {
+    if (a.pic && a.pic !== 'clan' && a.pic.id) { try { return app.icon(a.pic, size); } catch (e) { console.error(e); } }
+    return h('img', { class: 'nw-logo', src: 'assets/logo-mark.webp', alt: '', decoding: 'async' });
+  }
+  const KLABEL = { war: '클랜전', league: '리그', upset: '이변', top: '래더', peak: '래더', streak: '연승', grind: '강행군', rival: '맞대결', sum: '요약' };
+
+  function band(app) {
+    let got = [], hrs = 24;
+    for (const hh of [24, 48, 168]) {
+      hrs = hh;
+      got = articles(NOW - hh * HOUR, NOW + 1, { latest: true, band: true, max: 4, fresh: hh > 24 });
+      if (got.length >= 4) break;
+    }
+    const label = hrs === 24 ? '오늘' : hrs === 48 ? '최근 이틀' : '최근 7일';
+    const c = counts(NOW - hrs * HOUR, NOW + 1);
+    const sum = { k: 'sum', title: sumText(label, c), sub: `기록 ${fmt.when(NOW)} 기준`, href: '#games', pic: 'clan', who: [] };
+    const big = got[0] || sum;
+    const smalls = got.slice(1, 4);
+    if (smalls.length < 3 && big !== sum) smalls.push(sum);
+    if (!smalls.length) smalls.push({ k: 'sum', title: '주간 소식 보기', href: '#weekly' });
+    const head = h('div', { class: 'nw-h' },
+      h('span', { class: 'nw-mast' }, 'THUG 스포츠'),
+      h('span', { class: 'nw-date' }, fmt.dayW(NOW)),
+      hrs > 24 ? h('span', { class: 'nw-span' }, hrs === 48 ? '최근 이틀 소식' : '최근 7일 소식') : null,
+      h('a', { class: 'more nw-all', href: '#news' }, '소식지 전체 ▸'));
+    const bigEl = h('a', { class: 'nw-big', href: big.href, 'data-k': big.k },
+      h('span', { class: 'nw-pic' }, picOf(app, big, 32)),
+      h('span', { class: 'nw-bt' }, h('span', { class: 'nw-tt' }, big.title), big.sub ? h('span', { class: 'nw-sub' }, big.sub) : null));
+    const list = h('ul', { class: 'nw-list' }, smalls.map((a) => h('li', null, h('a', { href: a.href, 'data-k': a.k, title: a.sub || null }, a.title))));
+    return h('section', { class: 'pnl nw-band', 'aria-label': 'THUG 스포츠 소식' }, head, h('div', { class: 'nw-b' }, bigEl, list),
+      h('a', { class: 'more nw-all-m', href: '#news' }, '소식지 전체 ▸'));
+  }
+
+  // 최근 7일(한국 날짜, 오늘 먼저): [{ s: 그날 0시, list: 기사, c: 경기 수 }]
+  function days() {
+    const d0 = dayStart(NOW), out = [];
+    for (let k = 0; k < 7; k++) {
+      const s = d0 - k * DAY, e = Math.min(s + DAY, NOW + 1);
+      out.push({ s, list: articles(s, e, { latest: k === 0, max: 8 }), c: counts(s, e) });
+    }
+    return out;
+  }
+
+  function view(app) {
+    const secs = [];
+    let total = 0;
+    days().forEach(({ s, list, c }, k) => {
+      total += list.length;
+      const rows = list.map((a) => h('li', null, h('a', { class: 'nw-r', href: a.href, 'data-k': a.k },
+        h('span', { class: 'nw-pic sm' }, picOf(app, a, 32)),
+        h('span', { class: 'nw-rt' },
+          h('span', { class: 'nw-r1' }, KLABEL[a.k] && !a.title.startsWith(KLABEL[a.k]) ? h('span', { class: 'nw-k k-' + a.k }, KLABEL[a.k]) : null, h('span', { class: 'nw-ti' }, a.title)),
+          a.sub ? h('span', { class: 'nw-sub' }, a.sub) : null))));
+      secs.push(h('section', { class: 'pnl nw-day', 'aria-label': fmt.dayW(s + 12 * HOUR) + ' 소식' },
+        h('div', { class: 'pnl-h' }, h('h2', null, fmt.dayW(s + 12 * HOUR) + (k === 0 ? ' · 오늘' : '')),
+          h('div', { class: 'pnl-r' }, h('span', { class: 'pnl-sub' }, `래더 ${c.lad}판 · 내전 ${c.inn}판`))),
+        h('div', { class: 'pnl-b flush' }, rows.length ? h('ul', { class: 'nw-rows' }, rows) : h('p', { class: 'empty' }, c.lad + c.inn ? '큰 소식 없음' : '경기 기록 없음'))));
+    });
+    return h('div', { class: 'page nw-page' },
+      h('header', { class: 'ptitle' }, h('h1', null, 'THUG 스포츠'), h('p', null, `최근 7일 소식 ${total}건 · 기록 ${fmt.when(NOW)} 기준`)),
+      ...secs,
+      h('div', { class: 'btns nw-btns' }, h('a', { class: 'btn', href: '#weekly' }, '주간 소식 보기'), h('a', { class: 'btn', href: '#channel' }, '채널로 가기')));
+  }
+
+  const NS0 = { band, view, articles, counts, days };
+  // 이 PC 시험(localhost)에서만 바깥에서 기사를 들여다보게(기사 숫자를 기록과 대조할 때)
+  try { if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) window.THUG_NS = NS0; } catch (e) { /* 없음 */ }
+  return NS0;
+})();
+
 /* THUG 클랜 — 입장, 채널 줄, 메뉴, 화면 바꾸기 */
 (() => {
   const iconCache = new Map();
@@ -10224,7 +10728,7 @@ const TA = (() => {
         app._mm = null;
         app.clearIcons(); // 다른 사람의 공유 꾸미기가 새로 보이게
         if (typeof TT !== 'undefined') { try { TT.refresh(app); } catch (e) { console.error(e); } }
-        if (hs === 'war' || hs.startsWith('war--') || hs === 'weekly' || hs.startsWith('weekly--') || hs === 'titles' || hs.startsWith('titles--')) route({ keep: true });
+        if (hs === 'war' || hs.startsWith('war--') || hs === 'weekly' || hs.startsWith('weekly--') || hs === 'news' || hs === 'titles' || hs.startsWith('titles--')) route({ keep: true });
       });
     }
     app.state.had3 = !!(LIVE && LIVE.has3());
@@ -10309,7 +10813,7 @@ const TA = (() => {
     const hs = decodeURIComponent(location.hash.slice(1)) || 'channel';
     if (hs !== 'me') app.state.meFirst = false; // 처음 화면의 본인 확인 모습은 그 화면에 있는 동안만
     // 리그·클랜전·운영진 화면에 들어올 때 클랜 기록이 2분 넘게 묵었으면 새로 받음(받으면 thug:club)
-    if (LIVE && !opt.keep && !LIVE.offline && /^(league|war|admin|weekly)/.test(hs) && Date.now() - LIVE.clubAt > 120e3) LIVE.refreshClub();
+    if (LIVE && !opt.keep && !LIVE.offline && /^(league|war|admin|weekly|news)/.test(hs) && Date.now() - LIVE.clubAt > 120e3) LIVE.refreshClub();
     let view, tab;
     if (hs.startsWith('p--')) { view = V.profile(app, hs.slice(3)); tab = 'rank'; }
     else if (hs === 'duel' || hs.startsWith('duel--')) { const [, a, b] = hs.split('--'); view = V.duel(app, a, b); tab = 'duel'; }
@@ -10323,6 +10827,12 @@ const TA = (() => {
     else if (hs === 'war-edit' || hs.startsWith('war-edit--')) { view = WR.edit(app, hs.startsWith('war-edit--') ? hs.slice(10) : null); tab = 'war'; }
     else if ((hs === 'weekly' || hs.startsWith('weekly--')) && typeof CD !== 'undefined' && CD.weeklyView) {
       try { view = CD.weeklyView(app, hs.startsWith('weekly--') ? hs.slice(8) : undefined); } catch (e) { console.error(e); view = null; }
+      if (!view) view = V.channel(app);
+      tab = 'channel';
+    }
+    else if (hs === 'news' && typeof NS !== 'undefined') {
+      // 소식지 전체(news.js): 최근 7일 날짜별 기사. 아래 메뉴 칸은 늘리지 않고 채널 띠에서만 들어감
+      try { view = NS.view(app); } catch (e) { console.error(e); view = null; }
       if (!view) view = V.channel(app);
       tab = 'channel';
     }
@@ -10357,7 +10867,7 @@ const TA = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "2abe39966d"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "382e649048"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
