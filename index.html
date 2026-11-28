@@ -2686,7 +2686,7 @@ const DB = (() => {
     if (p.elo && p.elo.n >= GR.eloMin) { const hit = GR.elo.find(([v]) => p.elo.r >= v); eg = hit ? hit[1] : 1; }
     p.gradeLadder = lg; p.gradeElo = eg;
     p.grade = Math.max(lg, eg);
-    p.gradeBy = eg > lg ? 'elo' : 'ladder';
+    p.gradeBy = eg > lg || !p.mmr ? 'elo' : 'ladder'; // 래더 점수가 없으면 내전 점수로(11/28 21시 기록: 래더 없이 내전 등급이 1인 사람에서 화면이 멈춤)
     p.gradeNone = !p.mmr && !(p.elo && p.elo.n >= GR.eloMin);
     p.gradeName = p.gradeNone ? GR.none : gradeName(p.grade);
     p.gradeWhy = p.gradeNone ? `래더 기록과 내전 ${GR.eloMin}전이 아직 없음` : p.gradeBy === 'elo' ? `내전 점수 ${p.elo.r}` : `래더 최고 ${p.mmr.max.t} ${p.mmr.max.v}`;
@@ -10885,7 +10885,7 @@ const NS = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "ff609bfee3"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "b16a8bae60"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
