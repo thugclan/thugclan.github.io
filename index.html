@@ -2581,8 +2581,10 @@ const DB = (() => {
     const k = String(mem[0].n).toLowerCase();
     if (!ownFirst.has(k) || g.time < ownFirst.get(k)) ownFirst.set(k, g.time);
   }
-  // t 뒤 이 사람의 1:1 경기를 빠짐없이 가졌는지(아이디가 하나면 첫 경기까지 받았을 때도)
-  const hasFrom = (p, t) => (allFrom != null && allFrom <= t) || (p.ownFrom != null && (p.ownFrom <= t || (p.aliases.length === 1 && !!p.first && p.ownFrom < Date.parse(p.first + 'T00:00:00Z') + DAY)));
+  // t 뒤 이 사람의 1:1 경기를 빠짐없이 가졌는지(아이디가 하나면 첫 경기까지 받았을 때도).
+  // 수집기가 사람마다 준 기록 시작(persons[].ladFrom, 끝까지 받은 아이디도 앎, 11/28 수집기 lib/ladder.mjs)이 있으면 그것도 씀
+  const hasFrom = (p, t) => (allFrom != null && allFrom <= t) || (!!p.ladFrom && Date.parse(p.ladFrom) <= t)
+    || (p.ownFrom != null && (p.ownFrom <= t || (p.aliases.length === 1 && !!p.first && p.ownFrom < Date.parse(p.first + 'T00:00:00Z') + DAY)));
   for (const p of persons) {
     const fs = p.aliases.map((a) => ownFirst.get(String(a).toLowerCase()));
     p.ownFrom = fs.length && fs.every((t) => t != null) ? Math.max(...fs) : null;
@@ -5225,7 +5227,7 @@ const AD = (() => {
       h('div', { class: 'mem-tools adm-tools' }, q, chips),
       list,
       h('div', { class: 'adm-add' }, h('p', { class: 'lbl' }, '목록에 없는 아이디 넣기'), h('div', { class: 'adm-m-f' }, addName, addCls, addBtn),
-        h('p', { class: 'note' }, 'Thug_로 시작하지 않는 아이디(협동클랜 친구 등)는 구분만 저장 (경기 기록 갱신 없음)')),
+        h('p', { class: 'note' }, '넣은 아이디는 구분만 저장 (경기 기록은 RepMastered 선수 목록에 Thug_ 아이디로 나온 뒤부터 갱신)')),
       h('div', { class: 'adm-st' }, status));
   }
 
@@ -10883,7 +10885,7 @@ const NS = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "50105637de"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "ff609bfee3"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
