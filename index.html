@@ -2509,6 +2509,7 @@ const DB = (() => {
     pred: { wL: 0.35, wE: 0.25, wH: 0.35, wF: 0.10, half: 30, cK: 3, formN: 10, formMin: 5, fLo: 0.1, fHi: 0.9 },
     boardElo: 5, boardRace: 5, // 기록별 랭킹: 내전 승률, 상대 종족별 승률의 최소 판 수
     oppMin: 3, // 상대 전적 요약(승률이 가장 높은·가장 고전한 상대)에 넣는 최소 판 수
+    ladderRank: { days: 30, min: 5 }, // 래더 순위(서열·본좌·티어 등수): 최근 days일에 래더 min판 이상(2026-11-28 원장님)
     // 캐릭터 등급: 래더 최고 티어와 내전 점수 가운데 높은 쪽. 숫자는 여기서만 바꿈
     grade: {
       names: ['', '설거지', '맛집', '조커', '잭', '킹', '갓'], // 클랜에서 쓰는 등급 이름(2026-11-25 원장님)
@@ -2557,10 +2558,6 @@ const DB = (() => {
 
   const ranked = persons.filter((p) => p.ranked);
 
-  // 래더 서열(정식·테스터만)
-  const ladder = ranked.filter((p) => p.mmr).sort((a, b) => b.mmr.cur.v - a.mmr.cur.v || b.mmr.max.v - a.mmr.max.v);
-  ladder.forEach((p, i) => { p.ladderRank = i + 1; });
-
   // 경기
   const games = S.games.map((g, i) => {
     const p = g.p.map((x) => ({ ...x, id: x.id && byId.has(x.id) ? x.id : null }));
@@ -2570,6 +2567,35 @@ const DB = (() => {
   });
   const byPerson = new Map();
   for (const g of games) for (const x of g.p) if (x.id) (byPerson.get(x.id) || byPerson.set(x.id, []).get(x.id)).push(g);
+
+  // 래더 서열(정식·테스터만). 2026-11-28 원장님: 최근 30일에 래더 5판 이상 한 사람만 순위(판수는 모은 경기로 셈).
+  // 판수가 모자라도 그 30일 앞까지 기록이 다 모인 게 아니면 '확인 중'으로 순위에 둠. 명단의 마지막 경기가 30일 넘었으면 바로 순위 밖.
+  // 기록이 어디부터 빠짐없는지(ownFrom): 아이디마다 '클랜원이 혼자인 경기'(그 아이디 쪽 목록에서만 받음) 가운데 가장 옛 것,
+  // 아이디가 여럿이면 그 가운데 가장 늦은 것(하나라도 받은 경기가 없으면 모름). 수집기가 모두의 기록 시작(meta.ladFrom)을 주면 그것도 씀
+  const LR = CFG.ladderRank, lrFrom = NOW - LR.days * DAY;
+  const allFrom = S.meta.ladFrom ? Date.parse(S.meta.ladFrom) : null;
+  const ownFirst = new Map();
+  for (const g of games) {
+    const mem = g.p.filter((x) => x.id);
+    if (mem.length !== 1) continue;
+    const k = String(mem[0].n).toLowerCase();
+    if (!ownFirst.has(k) || g.time < ownFirst.get(k)) ownFirst.set(k, g.time);
+  }
+  // t 뒤 이 사람의 1:1 경기를 빠짐없이 가졌는지(아이디가 하나면 첫 경기까지 받았을 때도)
+  const hasFrom = (p, t) => (allFrom != null && allFrom <= t) || (p.ownFrom != null && (p.ownFrom <= t || (p.aliases.length === 1 && !!p.first && p.ownFrom < Date.parse(p.first + 'T00:00:00Z') + DAY)));
+  for (const p of persons) {
+    const fs = p.aliases.map((a) => ownFirst.get(String(a).toLowerCase()));
+    p.ownFrom = fs.length && fs.every((t) => t != null) ? Math.max(...fs) : null;
+    p.ladN = (byPerson.get(p.id) || []).filter((g) => g.kind === 'ladder' && g.time >= lrFrom).length;
+    p.ladState = !p.mmr ? null : p.ladN >= LR.min ? 'on' : p.daysAgo > LR.days || hasFrom(p, lrFrom) ? 'off' : 'wait';
+  }
+  const ladSort = (a, b) => b.mmr.cur.v - a.mmr.cur.v || b.mmr.max.v - a.mmr.max.v;
+  const ladder = ranked.filter((p) => p.mmr && p.ladState !== 'off').sort(ladSort);
+  ladder.forEach((p, i) => { p.ladderRank = i + 1; });
+  const ladderOut = ranked.filter((p) => p.ladState === 'off').sort(ladSort);
+  const LRtxt = `최근 ${LR.days}일 래더 ${LR.min}판 이상`;
+  // 주간 소식 '래더 최다승': 그 주 처음(t)부터 기록이 다 모였는지. t 뒤에 경기한 정식·테스터 모두
+  const ladWeekFull = (t) => ranked.every((p) => !p.last || Date.parse(p.last + 'T23:59:59+09:00') < t || hasFrom(p, t));
 
   // 내전 점수(ELO): 시간순으로 처음부터 다시 계산
   const elo = new Map();
@@ -2787,7 +2813,7 @@ const DB = (() => {
     val: (p) => p.vsR[r][0] / (p.vsR[r][0] + p.vsR[r][1]), tie: (p) => p.vsR[r][0] + p.vsR[r][1], show: (v) => fmt.pct(v), sub: (p) => pctS(...p.vsR[r]),
   });
   const BOARDS = [
-    { k: 'ladCur', group: '래더', label: '래더 현재 점수', cond: '래더 기록이 있는 사람', ok: (p) => !!p.mmr, val: (p) => p.mmr.cur.v, show: (v) => String(v), tier: (p) => p.mmr.cur, sub: (p) => `최고 ${p.mmr.max.t} ${p.mmr.max.v}` },
+    { k: 'ladCur', group: '래더', label: '래더 현재 점수', cond: LRtxt, ok: (p) => !!p.mmr && p.ladState !== 'off', val: (p) => p.mmr.cur.v, show: (v) => String(v), tier: (p) => p.mmr.cur, sub: (p) => `최고 ${p.mmr.max.t} ${p.mmr.max.v}` },
     { k: 'ladMax', group: '래더', label: '래더 최고 점수', cond: '래더 기록이 있는 사람', ok: (p) => !!p.mmr, val: (p) => p.mmr.max.v, show: (v) => String(v), tier: (p) => p.mmr.max, sub: (p) => `지금 ${p.mmr.cur.t} ${p.mmr.cur.v}` },
     { k: 'rate', group: '전체 기록', label: '승률', cond: `RepMastered 전체 기록 ${CFG.minGames}판 이상(승패가 난 판)`, ok: (p) => p.w + p.l >= CFG.minGames, val: (p) => p.winRate, tie: (p) => p.w + p.l, show: (v) => fmt.pct(v), sub: (p) => pctS(fmt.num(p.w), fmt.num(p.l)) },
     { k: 'wins', group: '전체 기록', label: '다승', cond: 'RepMastered 전체 기록', ok: (p) => p.w > 0, val: (p) => p.w, show: (v) => `${fmt.num(v)}승`, sub: (p) => `${fmt.num(p.games)}판 · 승률 ${fmt.pct(p.winRate)}` },
@@ -2888,7 +2914,7 @@ const DB = (() => {
   const TDEFS = [];
   const def = (o) => TDEFS.push({ group: '실력', w: 50, ...o });
   // 실력
-  def({ id: 'ladder-top', k: '본좌', w: 100, d: '래더 점수 클랜 1위', rule: '래더 현재 점수 1위(같으면 최고 점수가 높은 쪽)', pick: () => ladTop(ranked), why: ladWhy });
+  def({ id: 'ladder-top', k: '본좌', w: 100, d: '래더 점수 클랜 1위', rule: `래더 현재 점수 1위(${LRtxt}, 같으면 최고 점수가 높은 쪽)`, pick: () => ladTop(ladder), why: ladWhy });
   def({ id: 'elo-top', k: '내전 최강', w: 95, d: '내전 점수 클랜 1위', rule: `내전 점수 1위(내전 ${CFG.ranked}판 이상${COL})`, pick: () => tops(ranked.filter((p) => p.elo && p.elo.n >= CFG.ranked), (p) => p.elo.r), why: (v, p) => `내전 점수 ${v}(${p.elo.n}판)` });
   def({ id: 'win-rate', k: '승률왕', w: 86, d: '이기는 비율이 가장 높음', rule: `승률 1위(승패가 난 판 ${CFG.minGames}판 이상, 같으면 판이 많은 쪽, 전체 기록)`, pick: () => tops(ranked.filter((p) => p.w + p.l >= CFG.minGames), (p) => p.winRate, { tie: (p) => p.w + p.l }), why: (v, p) => `승률 ${fmt.pct(v)}(${fmt.num(p.w)}승 ${fmt.num(p.l)}패)` });
   def({ id: 'wins', k: '다승왕', w: 82, d: '가장 많이 이김', rule: '이긴 판 수 1위(전체 기록)', pick: () => tops(ranked, (p) => p.w, { min: 1 }), why: (v) => `${fmt.num(v)}승` });
@@ -2915,19 +2941,19 @@ const DB = (() => {
   // 티어별 1·2·3등: 래더 현재 티어 안에서 현재 점수 순(같은 점수는 같은 등수, 1·1·3처럼)
   const tierPlace = new Map();
   for (const t of Object.keys(TIER)) {
-    const s = ranked.filter((p) => p.mmr && p.mmr.cur.t === t).sort((a, b) => b.mmr.cur.v - a.mmr.cur.v);
+    const s = ladder.filter((p) => p.mmr.cur.t === t).sort((a, b) => b.mmr.cur.v - a.mmr.cur.v); // 래더 순위에 든 사람만(최근 30일 5판)
     s.forEach((p, i) => tierPlace.set(p.id, i && s[i - 1].mmr.cur.v === p.mmr.cur.v ? tierPlace.get(s[i - 1].id) : i + 1));
   }
   Object.keys(TIER).forEach((t, ti) => {
     for (const place of [1, 2, 3]) {
       def({ id: `tier-${t}-${place}`, k: `${t}티어 ${place}등`, group: '티어', tier: t, place, w: 74 - place * 8 - ti, d: `${t}티어 안에서 래더 점수 ${place}등`,
-        rule: `래더 현재 티어가 ${t}인 사람 가운데 현재 점수 ${place}등(같은 점수는 같은 등수)`,
+        rule: `래더 현재 티어가 ${t}인 사람 가운데 현재 점수 ${place}등(${LRtxt}, 같은 점수는 같은 등수)`,
         pick: () => every(ranked, (p) => (p.mmr && p.mmr.cur.t === t && tierPlace.get(p.id) === place ? p.mmr.cur.v : null), () => true), why: ladWhy });
     }
   });
   // 종족
   for (const [r, k, w] of [['T', '테란의 희망', 85], ['Z', '저그 군주', 85], ['P', '아이어 수호자', 85]]) {
-    def({ id: 'race-' + r, k, group: '종족', w, d: `${RACE[r].label} 가운데 래더 1위`, rule: `주 종족이 ${RACE[r].label}인 사람 가운데 래더 현재 점수 1위`, pick: () => ladTop(ranked.filter((p) => p.main === r)), why: ladWhy });
+    def({ id: 'race-' + r, k, group: '종족', w, d: `${RACE[r].label} 가운데 래더 1위`, rule: `주 종족이 ${RACE[r].label}인 사람 가운데 래더 현재 점수 1위(${LRtxt})`, pick: () => ladTop(ladder.filter((p) => p.main === r)), why: ladWhy });
   }
   for (const [r, k] of [['Z', '저그 사냥꾼'], ['T', '테란 사냥꾼'], ['P', '토스 사냥꾼']]) {
     def({ id: 'hunt-' + r, k, group: '종족', w: 70, d: `${RACE[r].label} 상대로 가장 잘 이김`, rule: `${RACE[r].label} 상대 승률 1위(${TC.hunt}판 이상, 승률 ${fmt.pct(TC.huntRate)} 이상, 같으면 판이 많은 쪽${COL})`,
@@ -3067,7 +3093,7 @@ const DB = (() => {
   const weekUpset = week.filter((g) => g.upset).sort((a, b) => (b.elo.before[1 - b.winner] - b.elo.before[b.winner]) - (a.elo.before[1 - a.winner] - a.elo.before[a.winner]))[0];
 
   return {
-    S, CFG, NOW, DAY, RACE, TIER, persons, ranked, CLS_NAME, byId, ladder, games, byPerson, elo, eloRank, vs, relations, topPair, autoLine,
+    S, CFG, NOW, DAY, RACE, TIER, persons, ranked, CLS_NAME, byId, ladder, ladderOut, ladWeekFull, games, byPerson, elo, eloRank, vs, relations, topPair, autoLine,
     opponents, gradeName, gradeRule, gradeCount, form, predict, BOARDS, board,
     TITLES, TITLE_GROUPS, titleById, refreshTitles,
     week: { n: week.length, top: weekTop ? { p: byId.get(weekTop[0]), w: weekTop[1] } : null, long: weekLong, upset: weekUpset },
@@ -4023,11 +4049,15 @@ const V = (() => {
       }
       if (st.rankMode === 'ladder') {
         const ranked = DB.ladder.filter(ok);
+        // 순위 밖: 최근 30일 래더 5판 미만(2026-11-28 원장님). 판수가 모자라도 기록을 다 받기 전인 사람은 순위에 둠(model.js)
+        const LR = DB.CFG.ladderRank;
+        const out = DB.ladderOut.filter(ok);
+        const outSub = (p) => (p.daysAgo > LR.days ? `${p.daysAgo}일 쉬는 중` : `최근 ${LR.days}일 래더 ${p.ladN}판`);
         const none = DB.ranked.filter((p) => !p.mmr && ok(p)).sort(byName);
-        const row = (p) => h('a', { class: 'row' + (p.away ? ' away' : ''), href: '#p--' + p.id },
+        const row = (p, sub) => h('a', { class: 'row' + (p.away ? ' away' : ''), href: '#p--' + p.id },
           h('span', { class: 'rk' + (p.ladderRank && p.ladderRank <= 3 ? ' top' : '') }, p.ladderRank || '-'),
           app.icon(p, 24),
-          nm(p, (p.titles.length && typeof TT !== 'undefined' ? TT.short(p, 2) : null) || `${fmt.num(p.games)}판 · 승률 ${fmt.pct(p.winRate)}`, !p.titles.length),
+          nm(p, sub || (p.titles.length && typeof TT !== 'undefined' ? TT.short(p, 2) : null) || `${fmt.num(p.games)}판 · 승률 ${fmt.pct(p.winRate)}`, sub ? false : !p.titles.length),
           h('span', { class: 'sc' }, p.mmr ? [tier(p.mmr.cur), h('b', null, p.mmr.cur.v)] : h('span', { class: 'c-dim' }, '-')),
           h('span', { class: 'd-only sc c-dim' }, p.mmr ? `${p.mmr.max.t} ${p.mmr.max.v}` : '-'),
           h('span', { class: 'd-only rate' }, wbar(p.w, p.l), h('small', null, `${fmt.pct(p.winRate)} · ${fmt.num(p.w)}승 ${fmt.num(p.l)}패`)),
@@ -4036,10 +4066,12 @@ const V = (() => {
         list.replaceChildren(
           h('div', { class: 'row head', 'aria-hidden': 'true' }, h('span', null, '#'), h('span', null, ''), h('span', null, '이름'), h('span', { class: 'sc' }, '점수'),
             h('span', { class: 'd-only sc' }, '최고'), h('span', { class: 'd-only' }, '승률'), h('span', { class: 'd-only sc' }, 'APM'), h('span', { class: 'd-only sc' }, '최근')),
-          ...ranked.map(row),
+          ...ranked.map((p) => row(p)),
+          out.length ? h('div', { class: 'row-sep' }, `순위 밖 ${out.length}명 (최근 ${LR.days}일 래더 ${LR.min}판 미만)`) : null,
+          ...out.map((p) => row(p, outSub(p))),
           none.length ? h('div', { class: 'row-sep' }, `래더 기록 없음 ${none.length}명`) : null,
-          ...none.map(row));
-        note.textContent = '래더 점수: RepMastered의 최근 래더 점수. 같은 배틀넷 계정의 Thug_ 아이디는 한 사람으로 묶음.' + guestNote;
+          ...none.map((p) => row(p)));
+        note.textContent = `래더 점수: RepMastered의 최근 래더 점수. 순위는 최근 ${LR.days}일 래더 ${LR.min}판 이상(모은 경기 기준, 기록을 아직 다 받지 못한 사람은 순위에 둠). 같은 배틀넷 계정의 Thug_ 아이디는 한 사람으로 묶음.` + guestNote;
       } else {
         const rows = DB.eloRank.filter((e) => ok(DB.byId.get(e.id)));
         list.replaceChildren(
@@ -4281,7 +4313,7 @@ const V = (() => {
     const eloRow = DB.eloRank.find((e) => e.id === p.id);
 
     const head = h('section', { class: 'pnl prof', 'aria-label': `${p.name} 프로필` },
-      h('div', { class: 'pnl-h' }, h('h2', null, '프로필'), h('div', { class: 'pnl-r' }, h('span', { class: 'pnl-sub' }, p.ladderRank ? `래더 ${p.ladderRank}위` : '래더 기록 없음'))),
+      h('div', { class: 'pnl-h' }, h('h2', null, '프로필'), h('div', { class: 'pnl-r' }, h('span', { class: 'pnl-sub' }, p.ladderRank ? `래더 ${p.ladderRank}위` : p.mmr ? '래더 순위 밖' : '래더 기록 없음'))),
       h('div', { class: 'prof-b' },
         comm(app.portrait(p, { scale: 4 }), p),
         h('div', { class: 'prof-id' },
@@ -4541,7 +4573,7 @@ const V = (() => {
     };
     const drawEarned = () => {
       const items = [
-        ['래더 1위 왕관', p.ladderRank === 1, p.ladderRank === 1 ? '지금 1위' : `지금 ${p.ladderRank ? p.ladderRank + '위' : '래더 기록 없음'}`],
+        ['래더 1위 왕관', p.ladderRank === 1, p.ladderRank === 1 ? '지금 1위' : `지금 ${p.ladderRank ? p.ladderRank + '위' : p.mmr ? '래더 순위 밖' : '래더 기록 없음'}`],
         ['5연승 불꽃', p.streak >= 5, `내전 ${p.streak}연승`],
         ['티어 색 테두리', !!p.mmr, p.mmr ? `${p.mmr.cur.t} 티어` : '래더 기록 없음'],
         ['클랜 마스터 표시', !!p.isMaster, p.isMaster ? '클랜 마스터' : '클랜 마스터만'],
@@ -8842,47 +8874,30 @@ const CD = (() => {
   }
   const kday = (n) => { const d = new Date(n * DAY); return `${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일`; };
 
-  // 래더 점수(g.mm: "'26s2·KR·C1598" = 그 경기 직전 클랜원의 시즌·지역·티어·점수). 사람·계정·시즌마다 시간순
-  const parseMM = (s) => { const m = /^'?(\d+)s(\d+)·.*·([SABCDEF])(\d+)\s*$/.exec(String(s || '')); return m ? { s: m[1] + 's' + m[2], t: m[3], v: +m[4] } : null; };
-  let SER = null;
-  function series() {
-    if (SER) return SER;
-    const m = new Map(), lastOf = new Map();
+  // 래더 최다승(2026-11-28 원장님 "최다승으로 바꿔", "기록이 다 모인 주부터"): 그 주 래더 1:1 승패, 내전 다승과 같은 차례(승 많은 순 → 패 적은 순)·3위까지.
+  // 그 주에 경기한 정식·테스터 모두의 기록이 그 주 처음부터 모였을 때만(DB.ladWeekFull). 모자라면 칸을 내지 않음.
+  // 전의 '래더 점수 상승'은 경기마다 붙은 래더 점수(g.mm)를 클랜원 자신의 점수로 보고 셌으나, g.mm은 상대 점수로 보여 뺌
+  // (같은 계정 몇 시간 안 연속 래더 541쌍: 한 판 변화 중앙값 52점, 앞 경기 승패와 방향이 맞는 것 353 대 180). g.mm을 클랜원 점수로 쓰지 말 것
+  function ladderWins(start, end) {
+    if (!DB.ladWeekFull || !DB.ladWeekFull(start)) return { list: [], n: 0 };
+    const rec = new Map();
+    let n = 0;
     for (const g of DB.games) {
-      if (g.kind !== 'ladder' || !g.mm) continue;
-      const ours = g.p.filter((x) => x.id);
-      if (ours.length !== 1) continue; // 클랜원끼리 래더면 점수 주인을 알 수 없음
-      const mm = parseMM(g.mm);
-      if (!mm) continue;
-      const x = ours[0];
-      const key = x.id + '|' + String(x.n).toLowerCase() + '|' + mm.s;
-      let e = m.get(key);
-      if (!e) { e = { id: x.id, name: x.n, s: mm.s, list: [] }; m.set(key, e); }
-      e.list.push({ t: g.time, v: mm.v, tier: mm.t });
-      lastOf.set(x.id, Math.max(lastOf.get(x.id) || 0, g.time));
+      if (g.kind !== 'ladder' || g.winner < 0 || g.p.length !== 2 || g.time < start || g.time >= end) continue;
+      if (g.p[0].id && g.p[0].id === g.p[1].id) continue; // 한 사람의 두 아이디
+      if (!g.p.some((x) => x.id)) continue;
+      n++;
+      g.p.forEach((x, i) => {
+        if (!x.id) return;
+        const r = rec.get(x.id) || { w: 0, l: 0 };
+        if (g.winner === i) r.w++; else r.l++;
+        rec.set(x.id, r);
+      });
     }
-    for (const e of m.values()) e.list.sort((a, b) => a.t - b.t);
-    SER = { list: [...m.values()], lastOf };
-    return SER;
-  }
-  function ladderGains(start, end) {
-    const S = series(), best = new Map();
-    for (const e of S.list) {
-      const inW = e.list.filter((x) => x.t >= start && x.t < end);
-      if (!inW.length) continue;
-      const p = DB.byId.get(e.id);
-      if (!p || !ranked(p)) continue;
-      const from = inW[0], last = inW[inW.length - 1];
-      const after = e.list.find((x) => x.t >= end);
-      let to;
-      if (after) to = { v: after.v, t: after.tier };
-      else if (last.t === S.lastOf.get(e.id) && p.mmr && Math.abs(p.mmr.cur.v - last.v) <= 80) to = { v: p.mmr.cur.v, t: p.mmr.cur.t }; // 마지막 경기 뒤 점수
-      else to = { v: last.v, t: last.tier };
-      const d = to.v - from.v;
-      const cur = best.get(e.id);
-      if (!cur || d > cur.d) best.set(e.id, { p, d, from: { v: from.v, t: from.tier }, to, n: inW.length });
-    }
-    return [...best.values()].filter((x) => x.d > 0).sort((a, b) => b.d - a.d || b.n - a.n).slice(0, 3);
+    const ws = [...rec.entries()].map(([id, r]) => ({ p: DB.byId.get(id), ...r })).filter((r) => r.p && ranked(r.p) && r.w > 0)
+      .sort((a, b) => b.w - a.w || a.l - b.l || a.p.name.localeCompare(b.p.name, 'en', { sensitivity: 'base' }));
+    ws.forEach((r, k) => { r.rank = k && ws[k - 1].w === r.w && ws[k - 1].l === r.l ? ws[k - 1].rank : k + 1; });
+    return { list: ws.filter((r) => r.rank <= 3).slice(0, 5), n };
   }
 
   const WCACHE = new Map();
@@ -8895,7 +8910,7 @@ const CD = (() => {
     const o = {
       mon: noStr(n), start, end, label: `${kday(n)} ~ ${kday(n + 6)}`, live: end > DB.NOW,
       prev: n > R.min ? noStr(n - 7) : null, next: n < R.max ? noStr(n + 7) : null, isLast: n === monNo(DB.NOW) - 7,
-      n: 0, wins: [], streak: null, ladder: [], leagues: [], wars: [], empty: true,
+      n: 0, wins: [], streak: null, ladder: [], ladN: 0, leagues: [], wars: [], empty: true,
     };
     // 내전
     const games = DB.games.filter((g) => g.internal && g.winner >= 0 && g.time >= start && g.time < end).sort((a, b) => a.time - b.time);
@@ -8924,7 +8939,7 @@ const CD = (() => {
     ws.forEach((r, k) => { r.rank = k && ws[k - 1].w === r.w && ws[k - 1].l === r.l ? ws[k - 1].rank : k + 1; });
     o.wins = ws.filter((r) => r.rank <= 3).slice(0, 5);
     // 래더
-    o.ladder = ladderGains(start, end);
+    { const lw = ladderWins(start, end); o.ladder = lw.list; o.ladN = lw.n; }
     // 리그
     for (const lg of leagues()) {
       if (lg.example || lg.hidden) continue;
@@ -8948,7 +8963,7 @@ const CD = (() => {
     sky(x, H, p.id);
     await head(x, '전적 카드', fmt.day(DB.NOW));
     const PX = M, PY = 170, PW = W - 2 * M, PH = 1072;
-    const top = panel(x, PX, PY, PW, PH, '프로필', p.ladderRank ? `래더 ${p.ladderRank}위` : '래더 기록 없음');
+    const top = panel(x, PX, PY, PW, PH, '프로필', p.ladderRank ? `래더 ${p.ladderRank}위` : p.mmr ? '래더 순위 밖' : '래더 기록 없음');
     const L = PX + 36, y0 = top + 20;
     const pr = drawPortrait(x, app, p, L, y0, 6);
     // 오른쪽: 칭호, 이름, 종족, 등급, 래더
@@ -9232,7 +9247,7 @@ const CD = (() => {
       });
       if (d.wins.length) add('내전 다승', `${d.n}판 가운데`, d.wins.length, (x, L, y, CW) => d.wins.forEach((r, k) => personRow(x, app, r.p, L, y + k * ROW, CW, `${r.rank}위`, [[`${r.w}승`, F.m, C.win], [' ', F.m, C.tx], [`${r.l}패`, F.m, C.loss]])));
       if (d.streak) add('가장 긴 연승', '그 주 내전', d.streak.list.slice(0, 3).length, (x, L, y, CW) => d.streak.list.slice(0, 3).forEach((p, k) => personRow(x, app, p, L, y + k * ROW, CW, '', [[`${d.streak.n}연승`, F.m, C.sys]])));
-      if (d.ladder.length) add('래더 점수 상승', '그 주 첫 경기 직전과 비교', d.ladder.length, (x, L, y, CW) => d.ladder.forEach((r, k) => personRow(x, app, r.p, L, y + k * ROW, CW, `${k + 1}위`, [[`${r.from.t}${r.from.v} → ${r.to.t}${r.to.v}  `, F.s, C.dimt, 4], [`+${r.d}`, F.m, C.win]])));
+      if (d.ladder.length) add('래더 최다승', `${d.ladN}판 가운데`, d.ladder.length, (x, L, y, CW) => d.ladder.forEach((r, k) => personRow(x, app, r.p, L, y + k * ROW, CW, `${r.rank}위`, [[`${r.w}승`, F.m, C.win], [' ', F.m, C.tx], [`${r.l}패`, F.m, C.loss]])));
       if (d.leagues.length) add('리그', `${d.leagues.length}개`, Math.min(4, d.leagues.length), (x, L, y, CW) => d.leagues.slice(0, 4).forEach((s, k) => {
         const ry = y + k * ROW;
         box(x, L, ry, CW, ROW - 12);
@@ -9295,7 +9310,7 @@ const CD = (() => {
         h('dt', null, '내전'), h('dd', null, `${d.n}판`),
         d.wins[0] ? [h('dt', null, '다승'), h('dd', null, plink(d.wins[0].p), ` ${d.wins[0].w}승`)] : null,
         d.streak ? [h('dt', null, '연승'), h('dd', null, plink(d.streak.list[0]), ` ${d.streak.n}연승`)] : null,
-        d.ladder[0] ? [h('dt', null, '래더'), h('dd', null, plink(d.ladder[0].p), h('span', { class: 'w' }, ` +${d.ladder[0].d}`))] : null,
+        d.ladder[0] ? [h('dt', null, '래더'), h('dd', null, plink(d.ladder[0].p), ` ${d.ladder[0].w}승`)] : null,
         d.leagues.length ? [h('dt', null, '리그'), h('dd', null, `${d.leagues.length}개`)] : null,
         d.wars.length ? [h('dt', null, '클랜전'), h('dd', null, d.wars.map((w) => `${w.opp} ${w.our}:${w.their}`).join(', '))] : null)];
     return h('section', { class: 'pnl p-week', 'aria-label': '주간 소식' },
@@ -9320,7 +9335,7 @@ const CD = (() => {
         h('dt', null, '클랜전'), h('dd', null, d.wars.length ? `${d.wars.length}번` : '없음'))));
       if (d.wins.length) panels.push(pnl('내전 다승', h('span', { class: 'pnl-sub' }, `${d.n}판 가운데`), h('ul', { class: 'cd-rows' }, d.wins.map((r) => row(r.p, `${r.rank}위`, h('span', { class: 'w' }, `${r.w}승`), ' ', h('span', { class: 'l' }, `${r.l}패`))))));
       if (d.streak) panels.push(pnl('가장 긴 연승', h('span', { class: 'pnl-sub' }, '그 주 내전'), h('ul', { class: 'cd-rows' }, d.streak.list.slice(0, 3).map((p) => row(p, '', `${d.streak.n}연승`)))));
-      if (d.ladder.length) panels.push(pnl('래더 점수 상승', h('span', { class: 'pnl-sub' }, '그 주 첫 경기 직전과 비교'), h('ul', { class: 'cd-rows' }, d.ladder.map((r, k) => row(r.p, `${k + 1}위`, h('span', { class: 'c-dim cd-from' }, `${r.from.t}${r.from.v} → ${r.to.t}${r.to.v} `), h('span', { class: 'w' }, `+${r.d}`))))));
+      if (d.ladder.length) panels.push(pnl('래더 최다승', h('span', { class: 'pnl-sub' }, `${d.ladN}판 가운데`), h('ul', { class: 'cd-rows' }, d.ladder.map((r) => row(r.p, `${r.rank}위`, h('span', { class: 'w' }, `${r.w}승`), ' ', h('span', { class: 'l' }, `${r.l}패`))))));
       if (d.leagues.length) panels.push(pnl('리그', h('span', { class: 'pnl-sub' }, '그 주에 결과가 들어간 리그'), h('ul', { class: 'cd-rows' }, d.leagues.map((s) => h('li', null,
         h('a', { class: 'plink', href: '#league--' + s.lg.id }, s.name),
         h('span', { class: 'cd-v' }, s.done && s.pod[0] ? `우승 ${s.pod[0].name}` : `진행 ${s.prog.done} / ${s.prog.total}경기`),
@@ -9430,7 +9445,7 @@ const CD = (() => {
     return api;
   }
 
-  return { profile, league, war, weekly, weekData, weeklyPanel, weeklyView, open, lastWeek, _leagueState: leagueState, _parseMM: parseMM, _gains: ladderGains };
+  return { profile, league, war, weekly, weekData, weeklyPanel, weeklyView, open, lastWeek, _leagueState: leagueState, _ladWins: ladderWins };
 })();
 
 /* THUG 클랜 — 칭호: 칭호 칩(누르면 뜻이 펼쳐짐), 서열 줄용 짧은 표시, 칭호 목록 화면(#titles).
@@ -10478,7 +10493,8 @@ const NS = (() => {
 
   const NS0 = { band, view, articles, counts, days };
   // 이 PC 시험(localhost)에서만 바깥에서 기사를 들여다보게(기사 숫자를 기록과 대조할 때)
-  try { if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) window.THUG_NS = NS0; } catch (e) { /* 없음 */ }
+  // (11/28 래더 순위 조건 대조용으로 DB·CD도)
+  try { if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) { window.THUG_NS = NS0; window.THUG_DB = DB; window.THUG_CD = typeof CD !== 'undefined' ? CD : null; } } catch (e) { /* 없음 */ }
   return NS0;
 })();
 
@@ -10867,7 +10883,7 @@ const NS = (() => {
 
 };
 </script>
-<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "382e649048"};
+<script>window.THUG_CFG={"url": "https://clbeddfcdixixkecdmdw.supabase.co", "key": "sb_publishable_xr2c45DVvgLalNpXzH4e3w_BhwiJ5uA", "build": "50105637de"};
 /* THUG 클랜 — 정식판(제 주소) 입장: 암호 → 통행증 → 창고에서 기록 받기 → 화면 시작.
    임시 사이트(Artifact)에는 묶지 않는다. build_site.py --live가 window.THUG_CFG(창고 주소·공개 열쇠)와 함께 넣는다. */
 (() => {
